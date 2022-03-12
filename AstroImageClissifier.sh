@@ -1,5 +1,8 @@
 #!/usr/local/bin/bash
 
+# ajouter une option pour connaitre la taille des fichier temporaire
+# ajouter une option pour les nettoyer, supprimer les .txt mais aussi le .log (en recréé un en gardant les derniers paramètres mis en log)
+
 # uniformiser le fichier log pour que chaque exécution donne la même taille de sortie log (remplir avec des lignes vides si besoin)
 
 
@@ -25,6 +28,10 @@ OverWrite(){
 
 Help(){
     echo "This is the Help page"
+    echo "-r (-run)  : lunch the clissification process. Add the path to the RAW images directory. You can add -Y to process directly the images."
+    echo "-u (-undo) : undo the last process, move back the images and rotate them as before"
+    echo "The command to show the volume of the .tmp files"
+    echo "-h (-help) : show this help page"
 }
 
 IsPicture(){
@@ -383,13 +390,27 @@ echo "\nRoot directory: $root_path" >> "$root_path/.tmp/AutoClassifier.log"
 
 if [[ $1 == "-u" || $1 == "-undo" ]];
 then
-    Undo
-    exit 1
+    if [ -z $2 ]; then
+        read -p "Do you want to undo the last action (Y/n): " sure
+    else
+        sure=$2
+    fi
+    
+    if [[ $sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y" ]]; then
+        Undo
+        exit 1
+    else
+        echo "${RED}Abort undo${NO_COLOR}"
+        echo "Abort undo" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+        exit 1
+    fi
 fi
 
 if [[ $1 == "-h" || $1 == "-H" || $1 == "-help" || $1 == "-Help" ]];
 then
     Help
+    echo "Help" >> "$root_path/.tmp/AutoClassifier.log"
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
     exit 1
 fi
@@ -437,7 +458,7 @@ then
             sure=$3
         fi
         
-        if [[ ($sure != "n" || $sure != "-n") && ($sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y") ]]; then
+        if [[ $sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y" ]]; then
             echo "${MAGENTA}Start processing...${NO_COLOR}\n"
             CleanTmp            # Clean temporary files
             Rotation            # Rotate image in Horizontal mode
@@ -448,6 +469,7 @@ then
             Lights              # Extract the lights
         else
             echo "${RED}Abort process${NO_COLOR}"
+            echo "Abort process" >> "$root_path/.tmp/AutoClassifier.log"
         fi
         
         echo "\nDetailed sub-folder size (after process):\n$(du -h)" >> "$root_path/.tmp/AutoClassifier.log"
