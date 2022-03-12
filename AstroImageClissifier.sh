@@ -393,27 +393,30 @@ then
         exit 1;
     fi
 
-    CleanTmp
-
     echo "\nWorking directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     echo "\nDetailed sub-folder size:\n$(du -h)" >> "$root_path/.tmp/AutoClassifier.log"
     
     nb_files=$(ls "$base_path/outAPN" | wc -l)
-    echo "There are $nb_files to process"
-    echo "Start processing..."
+    echo "There are $nb_files picture to process"
     
-    Rotation
-
-    Biases
-
-    Flats
-
-    CatchDarksLights
-
-    Darks
-
-    Lights
-
+    if [ -z $3 ]; then
+        read -p "Do you want to run the script (Y/n): " sure
+    else
+        sure=$3
+    fi
+    
+    if [[ ($sure != "n" || $sure != "-n") && ($sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y") ]]; then
+        echo "Start processing...\n"
+        CleanTmp            # Clean temporary files
+        Rotation            # Rotate image in Horizontal mode
+        Biases              # Extract the biases
+        Flats               # Extract the flats
+        CatchDarksLights    # Differenciat the darks and the lights
+        Darks               # Extract the darks
+        Lights              # Extract the lights
+    else
+        echo "Abort process"
+    fi
 
     end2=`gdate +%s.%3N`
 
