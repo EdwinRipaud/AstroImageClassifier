@@ -11,6 +11,13 @@
 ###########################################################################
 ###########################################################################
 
+OverWrite(){
+    sleep 0.05 # sleep for 50ms, juste to see that the line is being overwrite
+    printf "\033[1A"  # move cursor one line up
+    printf "\033[K"   # delete till end of line
+    echo $1
+}
+
 Help(){
     echo "This is the Help page"
 }
@@ -104,7 +111,8 @@ Biases(){
     lines=$(cat "$root_path/.tmp/temp_biases.txt")
     for line in $lines
     do
-        echo "${line}..."
+        #echo "${line}..."
+        OverWrite "${line}..."
         mv "$base_path/outAPN"/${line} "$base_path/biases/"
     done
     echo "done"
@@ -131,7 +139,8 @@ Flats(){
     lines=$(cat "$root_path/.tmp/temp_flats.txt")
     for line in $lines
     do
-        echo "${line}..."
+        #echo "${line}..."
+        OverWrite "${line}..."
         mv "$base_path/outAPN"/${line} "$base_path/flats/"
     done
     echo "done"
@@ -203,7 +212,8 @@ Lights(){
     lines=$(cat "$root_path/.tmp/temp_lights.txt")
     for line in $lines
     do
-        echo "${line}..."
+        #echo "${line}..."
+        OverWrite "${line}..."
         mv "$base_path/outAPN"/${line} "$base_path/lights/"
     done
     echo "done"
@@ -226,7 +236,8 @@ Darks(){
     lines=$(cat "$root_path/.tmp/temp_darks.txt")
     for line in $lines
     do
-        echo "${line}..."
+        #echo "${line}..."
+        OverWrite "${line}..."
         mv "$base_path/outAPN"/${line} "$base_path/darks/"
     done
     echo "done"
@@ -255,7 +266,8 @@ Undo(){
         lines=$(cat "$root_path/.tmp/temp_biases.txt")
         for line in $lines
         do
-            echo "${line}..."
+            #echo "${line}..."
+            OverWrite "${line}..."
             mv "$base_path/biases"/${line} "$base_path/outAPN/"
         done
         echo "done"
@@ -268,7 +280,8 @@ Undo(){
         lines=$(cat "$root_path/.tmp/temp_flats.txt")
         for line in $lines
         do
-            echo "${line}..."
+            #echo "${line}..."
+            OverWrite "${line}..."
             mv "$base_path/flats"/${line} "$base_path/outAPN/"
         done
         echo "done"
@@ -281,7 +294,8 @@ Undo(){
         lines=$(cat "$root_path/.tmp/temp_darks.txt")
         for line in $lines
         do
-            echo "${line}..."
+            #echo "${line}..."
+            OverWrite "${line}..."
             mv "$base_path/darks"/${line} "$base_path/outAPN/"
         done
         echo "done"
@@ -294,7 +308,8 @@ Undo(){
         lines=$(cat "$root_path/.tmp/temp_lights.txt")
         for line in $lines
         do
-            echo "${line}..."
+            #echo "${line}..."
+            OverWrite "${line}..."
             mv "$base_path/lights"/${line} "$base_path/outAPN/"
         done
         echo "done"
@@ -382,7 +397,11 @@ then
 
     echo "\nWorking directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     echo "\nDetailed sub-folder size:\n$(du -h)" >> "$root_path/.tmp/AutoClassifier.log"
-
+    
+    nb_files=$(ls "$base_path/outAPN" | wc -l)
+    echo "There are $nb_files to process"
+    echo "Start processing..."
+    
     Rotation
 
     Biases
