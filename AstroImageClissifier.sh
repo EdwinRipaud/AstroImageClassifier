@@ -1,6 +1,5 @@
 #!/usr/local/bin/bash
 
-# Bugg sur la lecture du fichier .log dans la fonction 'undo': impossible de retrouver le dernier 'working directory'
 # ajouter des sortie dans le terminal sur le nombre total de photo dans le directory et dans chaque catégorie trouvée
 # Ajouter ces infos dans le fichier log
 # uniformiser le fichier log pour que chaque exécution donne la même taille de sortie log (remplir avec des lignes vides si besoin)
@@ -148,7 +147,7 @@ CatchDarksLights(){
     # and all the others will be place in the "darks" directory.
 
     # Catch and move the lights
-    echo "\nSearch for the lights..."
+    echo "\nSearch for lights and darks..."
 
     # The first itetration is to defin the first picture of the directory, so it's a separate loop
     TEST=true
@@ -181,8 +180,6 @@ CatchDarksLights(){
     done
         
     # Catch and move the darks
-    echo "\nSearch for the darks..."
-
     for ((i=$PREV_NAME; i<$CHANGE_NAME+1; i++))
     do
         echo "IMG_$i.CR3" >> "$root_path/.tmp/temp_darks.txt"
@@ -194,7 +191,7 @@ Lights(){
     ##############
     # - Lights - #
     ##############
-    echo "lights found."
+    echo "\nlights found."
     echo "Move lights files to the \"lights\" directory..."
 
     # Check if "lights" directory existe, otherwise create it
@@ -217,7 +214,7 @@ Darks(){
     #############
     # - Darks - #
     #############
-    echo "darks found."
+    echo "\ndarks found."
     echo "Move darks files to the \"darks\" directory..."
 
     # Check if "darks" directory existe, otherwise create it
@@ -249,10 +246,7 @@ Undo(){
     fi
     
     # search the last working directory in the .log
-#    echo "############"
-#    echo tail -n 22 ".tmp/AutoClassifier.log"  | grep -w "Working directory:"  | sed 's/.*: //'
-#    echo "############"
-    base_path="/Volumes/Edwin SSD/5 - Astrophoto/AstroImageClissifier/Test" #$()
+    base_path=$(tail -n 30 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo $base_path
     cd "$base_path"
     
