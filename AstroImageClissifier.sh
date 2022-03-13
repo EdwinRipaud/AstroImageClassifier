@@ -271,20 +271,22 @@ Darks(){
 
 Undo(){
     start1=`gdate +%s.%3N`
-    echo "\n${MAGENTA}Clean the directories${NO_COLOR}\n"
+    echo "\n${MAGENTA}Undo previous process${NO_COLOR}\n"
+    echo $(pwd)
     
     # remove the old temporary files
     if [[ ! -e "$root_path/.tmp/temp_biases.txt" || ! -e "$root_path/.tmp/temp_flats.txt" || ! -e "$root_path/.tmp/temp_darks.txt" || ! -e "$root_path/.tmp/temp_lights.txt" || ! -e "$root_path/.tmp/temp_rotation.txt" ]]; then
         echo "${RED}Error: no temporary files${NO_COLOR}"
         echo "Impossible to undo, there is not all the temporary files..."
-        echo "\nError: No '.tmp/' directory" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "Error: No '.tmp/' directory" >> "$root_path/.tmp/AutoClassifier.log"
         Help
         exit 1
     fi
     
     # search the last working directory in the .log
-    base_path=$(tail -n 30 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "${YELLOW}Working directory: ${NO_COLOR}${base_path}\n"
+    echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     cd "$base_path"
     
     echo "move biases..."
@@ -364,7 +366,8 @@ Undo(){
 
     runtime=$( echo "$end1 - $start1" | bc -l )
     
-    echo "\nExecution time: $runtime s" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "Execution time: $runtime s" >> "$root_path/.tmp/AutoClassifier.log"
+    printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
 }
 
@@ -384,9 +387,9 @@ then
 fi
 
 echo "Execution date: $(date)" >> "$root_path/.tmp/AutoClassifier.log"
-echo "\nArguments : $1 $2" >> "$root_path/.tmp/AutoClassifier.log"
-echo "\nUser: $USER" >> "$root_path/.tmp/AutoClassifier.log"
-echo "\nRoot directory: $root_path" >> "$root_path/.tmp/AutoClassifier.log"
+echo "Arguments : $1 $2" >> "$root_path/.tmp/AutoClassifier.log"
+echo "User: $USER" >> "$root_path/.tmp/AutoClassifier.log"
+echo "Root directory: $root_path" >> "$root_path/.tmp/AutoClassifier.log"
 
 if [[ $1 == "-u" || $1 == "-undo" ]];
 then
@@ -400,8 +403,12 @@ then
         Undo
         exit 1
     else
+        # search the last working directory in the .log
+        base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+        echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
         echo "${RED}Abort undo${NO_COLOR}"
         echo "Abort undo" >> "$root_path/.tmp/AutoClassifier.log"
+        printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
         echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
         exit 1
     fi
@@ -409,8 +416,12 @@ fi
 
 if [[ $1 == "-h" || $1 == "-H" || $1 == "-help" || $1 == "-Help" ]];
 then
+    # search the last working directory in the .log
+    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     Help
     echo "Help" >> "$root_path/.tmp/AutoClassifier.log"
+    printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
     exit 1
 fi
@@ -442,10 +453,10 @@ then
         exit 1;
     fi
 
-    echo "\nWorking directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     
     nb_files=$(ls "$base_path/outAPN" | wc -l | xargs)
-    echo "\n$nb_files images to process:" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "$nb_files images to process:" >> "$root_path/.tmp/AutoClassifier.log"
     echo "There are $nb_files images to process\n"
     
     if [ $nb_files == 0 ]; then
@@ -472,7 +483,7 @@ then
             echo "Abort process" >> "$root_path/.tmp/AutoClassifier.log"
         fi
         
-        echo "\nDetailed sub-folder size (after process):\n$(du -h)" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "Detailed sub-folder size (after process):\n$(du -h)" >> "$root_path/.tmp/AutoClassifier.log"
     fi
     
     end2=`gdate +%s.%3N`
@@ -481,12 +492,16 @@ then
     runtime_user=$( echo "$end1 - $start1" | bc -l )
     runtime_command=$( echo "$end2 - $start2" | bc -l )
 
-    echo "\nExecution time: $runtime_global s\n\t- user time: $runtime_user s\n\t- cmd time: $runtime_command s" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "Execution time: $runtime_global s\n\t- user time: $runtime_user s\n\t- cmd time: $runtime_command s" >> "$root_path/.tmp/AutoClassifier.log"
 
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
 else
-    echo "\nUnknown argument" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "Unknown argument" >> "$root_path/.tmp/AutoClassifier.log"
+    # search the last working directory in the .log
+    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     echo "${RED}Error: Unknown argument ?${NO_COLOR}\n"
     Help
+    printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
 fi
