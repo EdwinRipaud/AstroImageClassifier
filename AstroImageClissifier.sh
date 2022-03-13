@@ -3,8 +3,6 @@
 # ajouter une option pour connaitre la taille des fichier temporaire
 # ajouter une option pour les nettoyer, supprimer les .txt mais aussi le .log (en recréé un en gardant les derniers paramètres mis en log)
 
-# uniformiser le fichier log pour que chaque exécution donne la même taille de sortie log (remplir avec des lignes vides si besoin)
-
 
 ###########################################################################
 ###########################################################################
@@ -284,9 +282,9 @@ Undo(){
     fi
     
     # search the last working directory in the .log
-    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    #base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "${YELLOW}Working directory: ${NO_COLOR}${base_path}\n"
-    echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
+    #echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     cd "$base_path"
     
     echo "move biases..."
@@ -393,24 +391,33 @@ echo "Root directory: $root_path" >> "$root_path/.tmp/AutoClassifier.log"
 
 if [[ $1 == "-u" || $1 == "-undo" ]];
 then
-    if [ -z $2 ]; then
-        read -p "Do you want to undo the last action (Y/n): " sure
-    else
-        sure=$2
-    fi
-    
-    if [[ $sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y" ]]; then
-        Undo
-        exit 1
-    else
-        # search the last working directory in the .log
-        base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
-        echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
-        echo "${RED}Abort undo${NO_COLOR}"
-        echo "Abort undo" >> "$root_path/.tmp/AutoClassifier.log"
+    # search the last working directory in the .log
+    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
+    nb_files=$(ls "$base_path/lights" | wc -l | xargs)
+    if [ $nb_files == 0 ]; then
+        echo "${RED}Error: No files to undo${NO_COLOR}"
+        echo "Error: No files to undo" >> "$root_path/.tmp/AutoClassifier.log"
         printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
         echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
         exit 1
+    else
+        if [ -z $2 ]; then
+            read -p "Do you want to undo the last action (Y/n): " sure
+        else
+            sure=$2
+        fi
+        
+        if [[ $sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y" ]]; then
+            Undo
+            exit 1
+        else
+            echo "${RED}Abort undo${NO_COLOR}"
+            echo "Abort undo" >> "$root_path/.tmp/AutoClassifier.log"
+            printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
+            echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+            exit 1
+        fi
     fi
 fi
 
@@ -496,11 +503,11 @@ then
 
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
 else
-    echo "Unknown argument" >> "$root_path/.tmp/AutoClassifier.log"
     # search the last working directory in the .log
     base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     echo "${RED}Error: Unknown argument ?${NO_COLOR}\n"
+    echo "Error: Unknown argument ?" >> "$root_path/.tmp/AutoClassifier.log"
     Help
     printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
