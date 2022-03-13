@@ -372,10 +372,7 @@ Undo(){
 }
 
 Temporary() {
-    if [ -e "$root_path/.tmp/temporary.txt" ]; then
-        rm "$root_path/.tmp/temporary.txt"
-    fi
-    echo "\n${MAGENTA}Preview temporary${NO_COLOR}\n"
+    echo "\n${MAGENTA}Preview temporary files${NO_COLOR}\n"
     echo "Detailed size of temporary files:"
     tot="$(echo "scale=1; "$(ls -lrt "${root_path}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
     echo "${YELLOW}Total size of the temporary folder: ${NO_COLOR}$tot Ko\c"
@@ -387,6 +384,7 @@ Temporary() {
         IFS=' ' read -r -a array <<< "$line"
         echo "\t${array[4]} \t${BLUE}${array[8]}${NO_COLOR}"
     done < "$input"
+    rm "$root_path/.tmp/temporary.txt"
 }
 
 
