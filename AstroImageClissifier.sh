@@ -375,16 +375,16 @@ Temporary() {
     echo "\n${MAGENTA}Preview temporary files${NO_COLOR}\n"
     echo "Detailed size of temporary files:"
     tot="$(echo "scale=1; "$(ls -lrt "${root_path}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
-    echo "${YELLOW}Total size of the temporary folder: ${NO_COLOR}$tot Ko\c"
+    echo "${YELLOW}Total size of the temporary folder: ${NO_COLOR}$tot Ko"
     echo "Size of temporary files: $tot Ko" >> "$root_path/.tmp/AutoClassifier.log"
     echo "$(ls -lrth "${root_path}/.tmp/")" >> "$root_path/.tmp/temporary.txt"
+    echo "$(tail -n +2 "$root_path/.tmp/temporary.txt")" > "$root_path/.tmp/temporary.txt"
     input="$root_path/.tmp/temporary.txt"
     while IFS= read -r line
     do
         IFS=' ' read -r -a array <<< "$line"
         echo "\t${array[4]} \t${BLUE}${array[8]}${NO_COLOR}"
     done < "$input"
-    rm "$root_path/.tmp/temporary.txt"
 }
 
 
@@ -453,11 +453,13 @@ then
     read -p "Do you want to clean up the temporary files (Y/n)? " res
     if [[ $res == "Y" || $res == "y" ]]; then
         base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+        input="$root_path/.tmp/temporary.txt"
         while IFS= read -r line
         do
             IFS=' ' read -r -a array <<< "$line"
             rm "$root_path/.tmp/${array[8]}"
         done < "$input"
+        rm "$root_path/.tmp/temporary.txt"
         # output the basis log informations
         echo "Execution date: $(date)" >> "$root_path/.tmp/AutoClassifier.log"
         echo "Arguments : -t" >> "$root_path/.tmp/AutoClassifier.log"
@@ -470,6 +472,7 @@ then
     else
         printf '\n%.0s' {1..14} >> "$root_path/.tmp/AutoClassifier.log"
         echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+        rm "$root_path/.tmp/temporary.txt"
     fi
     exit 1
 fi
