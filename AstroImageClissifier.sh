@@ -1,6 +1,5 @@
 #!/usr/local/bin/bash
 
-# ajouter une option pour connaitre la taille des fichier temporaire
 # ajouter une option pour les nettoyer, supprimer les .txt mais aussi le .log (en recréé un en gardant les derniers paramètres mis en log)
 
 
@@ -25,11 +24,17 @@ OverWrite(){
 }
 
 Help(){
-    echo "This is the Help page"
-    echo "-r (-run)  : lunch the clissification process. Add the path to the RAW images directory. You can add -Y to process directly the images."
-    echo "-u (-undo) : undo the last process, move back the images and rotate them as before"
-    echo "The command to show the volume of the .tmp files"
-    echo "-h (-help) : show this help page"
+    echo "${MAGENTA}This is the Help page${NO_COLOR}\n"
+    echo "Description:"
+    echo "Explain the structure that the program need to work, and what it produce."
+    echo "Option:"
+    echo "\t-r (-run): lunch the clissification process. Add the path to the RAW images directory.\n\t\t\tYou can add -Y to process directly the images."
+    echo "\t-u (-undo): undo the last process, move back the images and rotate them as before.\n\t\t\tYou can add -Y to undo directly the last action"
+    echo "\tThe command to show the volume of the .tmp files"
+    echo "\t-h (-help): show this help page"
+    echo "\nSome exemples:"
+    echo "\tsh AstroImageClissifier.sh -r Test -Y --> Lunch direclty the classification of the images in the folder 'Test'"
+    echo "\tsh AstroImageClissifier.sh -u --> Undo the last classification process, with -Y you can skip the confirmation"
 }
 
 IsPicture(){
@@ -282,7 +287,7 @@ Undo(){
     fi
     
     # search the last working directory in the .log
-    #base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    #base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "${YELLOW}Working directory: ${NO_COLOR}${base_path}\n"
     #echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     cd "$base_path"
@@ -369,6 +374,24 @@ Undo(){
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
 }
 
+Temporary() {
+    if [ -e "$root_path/.tmp/temporary.txt" ]; then
+        rm "$root_path/.tmp/temporary.txt"
+    fi
+    
+    echo "Detailed size of temporary files:"
+    tot="$(echo "scale=1; "$(ls -lrt "${root_path}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
+    echo "Total size of the temporary folder: $tot Ko\c"
+    echo "Size of temporary files: $tot Ko" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "$(ls -lrth "${root_path}/.tmp/")" >> "$root_path/.tmp/temporary.txt"
+    input="$root_path/.tmp/temporary.txt"
+    while IFS= read -r line
+    do
+        IFS=' ' read -r -a array <<< "$line"
+        echo "\t${array[4]} \t${array[8]}"
+    done < "$input"
+
+}
 
 
 ###########################################################################
@@ -378,21 +401,23 @@ Undo(){
 ###########################################################################
 
 root_path=$(pwd)
-
+# check the existence of the temporary folder
 if [ ! -d "$root_path/.tmp" ];
 then
     mkdir "$root_path/.tmp"
 fi
 
+# output the basis log informations
 echo "Execution date: $(date)" >> "$root_path/.tmp/AutoClassifier.log"
 echo "Arguments : $1 $2" >> "$root_path/.tmp/AutoClassifier.log"
 echo "User: $USER" >> "$root_path/.tmp/AutoClassifier.log"
 echo "Root directory: $root_path" >> "$root_path/.tmp/AutoClassifier.log"
 
+# Undo process
 if [[ $1 == "-u" || $1 == "-undo" ]];
 then
     # search the last working directory in the .log
-    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     nb_files=$(ls "$base_path/lights" | wc -l | xargs)
     if [ $nb_files == 0 ]; then
@@ -421,10 +446,24 @@ then
     fi
 fi
 
+# Temporary files check process
+if [[ $1 == "-t" || $1 == "-T" || $1 == "-temporary" || $1 == "-Temporary" ]];
+then
+    # search the last working directory in the .log
+    base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "Temporary files check/clean" >> "$root_path/.tmp/AutoClassifier.log"
+    Temporary
+    printf '\n%.0s' {1..14} >> "$root_path/.tmp/AutoClassifier.log"
+    echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+    exit 1
+fi
+
+# Help process
 if [[ $1 == "-h" || $1 == "-H" || $1 == "-help" || $1 == "-Help" ]];
 then
     # search the last working directory in the .log
-    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     Help
     echo "Help" >> "$root_path/.tmp/AutoClassifier.log"
@@ -433,7 +472,7 @@ then
     exit 1
 fi
 
-
+# Nominal process
 if [[ $1 == "-r" || $1 == "-run" ]];
 then
     start1=`gdate +%s.%3N`
@@ -504,7 +543,7 @@ then
     echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
 else
     # search the last working directory in the .log
-    base_path=$(tail -n 25 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+    base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     echo "${RED}Error: Unknown argument ?${NO_COLOR}\n"
     echo "Error: Unknown argument ?" >> "$root_path/.tmp/AutoClassifier.log"
