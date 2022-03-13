@@ -1,8 +1,5 @@
 #!/usr/local/bin/bash
 
-# ajouter une option pour les nettoyer, supprimer les .txt mais aussi le .log (en recréé un en gardant les derniers paramètres mis en log)
-
-
 ###########################################################################
 ###########################################################################
 ## -------------------- Declaration of the function -------------------- ##
@@ -30,7 +27,7 @@ Help(){
     echo "Option:"
     echo "\t-r (-run): lunch the clissification process. Add the path to the RAW images directory.\n\t\t\tYou can add -Y to process directly the images."
     echo "\t-u (-undo): undo the last process, move back the images and rotate them as before.\n\t\t\tYou can add -Y to undo directly the last action"
-    echo "\tThe command to show the volume of the .tmp files"
+    echo "\t-t (-temporary): show the volume of the .tmp files. You can clean up the files if they take too much space."
     echo "\t-h (-help): show this help page"
     echo "\nSome exemples:"
     echo "\tsh AstroImageClissifier.sh -r Test -Y --> Lunch direclty the classification of the images in the folder 'Test'"
@@ -378,19 +375,18 @@ Temporary() {
     if [ -e "$root_path/.tmp/temporary.txt" ]; then
         rm "$root_path/.tmp/temporary.txt"
     fi
-    
+    echo "\n${MAGENTA}Preview temporary${NO_COLOR}\n"
     echo "Detailed size of temporary files:"
     tot="$(echo "scale=1; "$(ls -lrt "${root_path}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
-    echo "Total size of the temporary folder: $tot Ko\c"
+    echo "${YELLOW}Total size of the temporary folder: ${NO_COLOR}$tot Ko\c"
     echo "Size of temporary files: $tot Ko" >> "$root_path/.tmp/AutoClassifier.log"
     echo "$(ls -lrth "${root_path}/.tmp/")" >> "$root_path/.tmp/temporary.txt"
     input="$root_path/.tmp/temporary.txt"
     while IFS= read -r line
     do
         IFS=' ' read -r -a array <<< "$line"
-        echo "\t${array[4]} \t${array[8]}"
+        echo "\t${array[4]} \t${BLUE}${array[8]}${NO_COLOR}"
     done < "$input"
-
 }
 
 
@@ -452,10 +448,31 @@ then
     # search the last working directory in the .log
     base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
-    echo "Temporary files check/clean" >> "$root_path/.tmp/AutoClassifier.log"
+    echo "Temporary files check" >> "$root_path/.tmp/AutoClassifier.log"
     Temporary
-    printf '\n%.0s' {1..14} >> "$root_path/.tmp/AutoClassifier.log"
-    echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+    
+    echo "\n${RED}!!! Warning !!!\nThis operation cannot be cancelled !\n${NO_COLOR}"
+    read -p "Do you want to clean up the temporary files (Y/n)? " res
+    if [[ $res == "Y" || $res == "y" ]]; then
+        base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+        while IFS= read -r line
+        do
+            IFS=' ' read -r -a array <<< "$line"
+            rm "$root_path/.tmp/${array[8]}"
+        done < "$input"
+        # output the basis log informations
+        echo "Execution date: $(date)" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "Arguments : -t" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "User: $USER" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "Root directory: $root_path" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "Temporary files cleanning" >> "$root_path/.tmp/AutoClassifier.log"
+        printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
+        echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+    else
+        printf '\n%.0s' {1..14} >> "$root_path/.tmp/AutoClassifier.log"
+        echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+    fi
     exit 1
 fi
 
