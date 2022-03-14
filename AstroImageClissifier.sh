@@ -1,5 +1,7 @@
 #!/usr/local/bin/bash
 
+# pour la commande de visualisation / suppression des fichiers temporaires, ajouter la visualisation sous forme d'arbre de fichier avec en plus la taille
+
 ###########################################################################
 ###########################################################################
 ## -------------------- Declaration of the function -------------------- ##
@@ -11,7 +13,15 @@ GREEN='\033[32m'
 YELLOW='\033[33m'
 BLUE='\033[34m'
 MAGENTA='\033[35m'
-NO_COLOR='\033[m'
+NORMAL='\033[m'
+BOLD='\033[1m'
+DIM='\033[2m'
+ITALIC='\033[3m'
+UNDERLINED='\033[4m'
+BLINKING='\033[5m'
+REVERSE='\033[7m'
+TITLE="" #'\033#6'
+SOUND='\007'
 
 OverWrite(){
     sleep 0.05 # sleep for 50ms, juste to see that the line is being overwrite
@@ -21,25 +31,53 @@ OverWrite(){
 }
 
 Help(){
-    echo "${MAGENTA}This is the Help page${NO_COLOR}\n"
-    echo "Description:"
-    echo "Explain the structure that the program need to work, and what it produce."
-    echo "Option:"
-    echo "\t-r (-run): lunch the clissification process. Add the path to the RAW images directory.\n\t\t\tYou can add -Y to process directly the images."
-    echo "\t-u (-undo): undo the last process, move back the images and rotate them as before.\n\t\t\tYou can add -Y to undo directly the last action"
-    echo "\t-t (-temporary): show the volume of the .tmp files. You can clean up the files if they take too much space."
-    echo "\t-h (-help): show this help page"
-    echo "\nSome exemples:"
-    echo "\tsh AstroImageClissifier.sh -r Test -Y --> Lunch direclty the classification of the images in the folder 'Test'"
-    echo "\tsh AstroImageClissifier.sh -u --> Undo the last classification process, with -Y you can skip the confirmation"
+    echo "\t${YELLOW}${BOLD}${UNDERLINED}${TITLE}This is the Help page${NORMAL}\n"
+    echo "${BOLD}${UNDERLINED}Description:${NORMAL}"
+    echo "This utility command script help you to classify your RAW images, out of your APN SD card, into 4 folders: Biases, Darks, Flats and Lights. Then you can easily use those folder to process your image, like withh ${ITALIC}${BOLD}Siril${NORMAL}.\nYou need to put all your image in the same folder named ${Bold}${ITALIC}'RAW'${NORMAL}, which need to be in another directory (${DIM}the working directory${NORMAL}), for instance named as you picture object ${BOLD}${ITALIC}\"Orion M42\"${NORMAL}."
+        echo "Your folder architecture tree need to be like this:\n"
+    echo "\t${BOLD}${UNDERLINED}Befor classification${NORMAL}\t\t\t${BOLD}${UNDERLINED}After classification${NORMAL}"
+    echo "${BOLD}\t\t\t\t\t|"
+    echo "\tOrion M42\t\t\t|\tOrion M42"
+    echo "\t   ${DIM}|–>${NORMAL}${BOLD} RAW\t\t\t|\t   ${DIM}|->${NORMAL}${BOLD} Biases"
+    echo "\t\t${DIM}|–>${NORMAL}${BOLD} ${BLUE}IMG_0001.CR3${NORMAL}${BOLD}\t|\t   ${DIM}|\t|->${NORMAL}${BOLD} ${BLUE}IMG_0001.CR3${NORMAL}${BOLD}"
+    echo "\t\t${DIM}|${NORMAL}${BOLD} ...\t\t\t|\t   ${DIM}|\t|${NORMAL}${BOLD} ..."
+    echo "\t\t${DIM}|–>${NORMAL}${BOLD} ${BLUE}IMG_0120.CR3${NORMAL}${BOLD}\t|\t   ${DIM}|\t|->${NORMAL}${BOLD} ${BLUE}IMG_0010.CR3${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|->${NORMAL}${BOLD} Darks"
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|–>${NORMAL}${BOLD} ${BLUE}IMG_0011.CR3${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|${NORMAL}${BOLD} ..."
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|–>${NORMAL}${BOLD} ${BLUE}IMG_0020.CR3${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|->${NORMAL}${BOLD} Flats"
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|–>${NORMAL}${BOLD} ${BLUE}IMG_0021.CR3${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|${NORMAL}${BOLD} ..."
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|–>${NORMAL}${BOLD} ${BLUE}IMG_0030.CR3${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|->${NORMAL}${BOLD} Lights"
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|–>${NORMAL}${BOLD} ${BLUE}IMG_0031.CR3${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|${NORMAL}${BOLD} ..."
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|–>${NORMAL}${BOLD} ${BLUE}IMG_0120.CR3${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|${NORMAL}${BOLD}"
+    echo "\t\t\t\t\t|\t   ${DIM}|->${NORMAL}${BOLD} RAW"
+    echo "\t\t\t\t\t|\t   ${DIM}|\t|–>${NORMAL}${BOLD} ${RED}Empty${NORMAL}"
+    echo ""
+    echo "\n${BOLD}${UNDERLINED}Option:${NORMAL}"
+    echo "\t-r ${DIM}(-run)${NORMAL}: lunch the clissification process. Add the path to the RAW images directory.\n\t\tYou can add -Y to process directly the images."
+    echo "\t-u ${DIM}(-undo)${NORMAL}: undo the last process, move back the images and rotate them as before.\n\t\tYou can add -Y to undo directly the last action"
+    echo "\t-t ${DIM}(-temporary)${NORMAL}: show the volume of the .tmp files.\n\t\tYou can clean up the files if they take too much space."
+    echo "\t-h ${DIM}(-help)${NORMAL}: show this help page."
+    echo "\n${BOLD}${UNDERLINED}Exemples:${NORMAL}"
+    echo "\tsh AstroImageClissifier.sh -r Test -Y \n\t\t${BOLD}-->${NORMAL} Lunch direclty the classification of the images in the folder ${ITALIC}'Test'${NORMAL}"
+    echo "\tsh AstroImageClissifier.sh -u \n\t\t${BOLD}-->${NORMAL} Undo the last classification process, with -Y you can skip the confirmation"
+    echo ""
 }
 
 IsPicture(){
     # check for the RAW images directory
-    if [ ! -d "$base_path/outAPN" ];
+    if [ ! -d "$base_path/RAW" ];
     then
-        echo "${RED}Error:${NO_COLOR} There is no 'outAPN/' directory inside the specified working directory."
-        echo "Pleas check the path or rename/create a 'outAPN' directory that contain all the RAW images from your APN."
+        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} There is no ${ITALIC}'RAW/'${NORMAL}${RED} directory inside the specified working directory.${NORMAL}"
+        echo "Please ${BOLD}check the path${NORMAL} or rename / create a ${ITALIC}'RAW'${NORMAL} directory that contain all the RAW images out of your APN."
         return 1
     fi
     return 0
@@ -86,21 +124,21 @@ Rotation(){
     ###############
     # catch and rotate all the images that aren't in the right (Horizontal (normal)) position
     echo "Search non Horizontal (normal) image"
-    exiftool -filename -if '$orientation ne "Horizontal (normal)"' -r "$base_path/outAPN" | grep -w "File Name                       :" | sed 's/.*: //' >> "$root_path/.tmp/temp_rot.txt"
+    exiftool -filename -if '$orientation ne "Horizontal (normal)"' -r "$base_path/RAW" | grep -w "File Name                       :" | sed 's/.*: //' >> "$root_path/.tmp/temp_rot.txt"
     
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_rot.txt") bad rotation found.${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_rot.txt") bad rotation found.${NORMAL}"
     echo "$(wc -l < "$root_path/.tmp/temp_rot.txt") bad rotation found." >> "$root_path/.tmp/AutoClassifier.log"
     lines=$(cat "$root_path/.tmp/temp_rot.txt")
     for line in $lines
     do
-        echo "$base_path/outAPN/${line}" >> "$root_path/.tmp/temp_rotation.txt"
+        echo "$base_path/RAW/${line}" >> "$root_path/.tmp/temp_rotation.txt"
     done
 
     echo "Rotate images...${BLUE}"
 
     exiftool -@ "$root_path/.tmp/temp_rotation.txt" -orientation="Horizontal (normal)" -overwrite_original_in_place
 
-    echo "${GREEN}done${NO_COLOR}"
+    echo "${GREEN}done${NORMAL}"
 }
 
 
@@ -110,12 +148,12 @@ Biases(){
     ##############
     # Catch and move the biases
     echo "\nSearch for the biases..."
-    exiftool -filename -if '$shutterspeed eq "1/8000"' -r "$base_path/outAPN" | grep -w "File Name                       :" | sed 's/.*: //' >> "$root_path/.tmp/temp_biases.txt"
+    exiftool -filename -if '$shutterspeed eq "1/8000"' -r "$base_path/RAW" | grep -w "File Name                       :" | sed 's/.*: //' >> "$root_path/.tmp/temp_biases.txt"
     
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_biases.txt") biases found.${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_biases.txt") biases found.${NORMAL}"
     echo "$(wc -l < "$root_path/.tmp/temp_biases.txt") biases found." >> "$root_path/.tmp/AutoClassifier.log"
     
-    echo "Move biases files to the ${YELLOW}'biases/'${NO_COLOR} directory..."
+    echo "Move biases files to the ${YELLOW}'biases/'${NORMAL} directory..."
     echo ""
 
     # Check if "biases" directory existe, otherwise create it
@@ -129,9 +167,9 @@ Biases(){
     do
         #echo "${line}..."
         OverWrite "${line}..."
-        mv "$base_path/outAPN"/${line} "$base_path/biases/"
+        mv "$base_path/RAW"/${line} "$base_path/biases/"
     done
-    echo "$GREEN done${NO_COLOR}"
+    echo "$GREEN done${NORMAL}"
 }
 
 
@@ -141,12 +179,12 @@ Flats(){
     #############
     # Catch and move the flats
     echo "\nSearch for the flats..."
-    exiftool -filename -if '$MeasuredEV ge 10' -r "$base_path/outAPN" | grep -w "File Name                       :" | sed 's/.*: //' >> "$root_path/.tmp/temp_flats.txt"
+    exiftool -filename -if '$MeasuredEV ge 10' -r "$base_path/RAW" | grep -w "File Name                       :" | sed 's/.*: //' >> "$root_path/.tmp/temp_flats.txt"
 
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_flats.txt") flats found.${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_flats.txt") flats found.${NORMAL}"
     echo "$(wc -l < "$root_path/.tmp/temp_flats.txt") flats found." >> "$root_path/.tmp/AutoClassifier.log"
     
-    echo "Move flats files to the ${YELLOW}'flats/'${NO_COLOR} directory..."
+    echo "Move flats files to the ${YELLOW}'flats/'${NORMAL} directory..."
     echo ""
 
     # Check if "flats" directory existe, otherwise create it
@@ -160,9 +198,9 @@ Flats(){
     do
         #echo "${line}..."
         OverWrite "${line}..."
-        mv "$base_path/outAPN"/${line} "$base_path/flats/"
+        mv "$base_path/RAW"/${line} "$base_path/flats/"
     done
-    echo "$GREEN done${NO_COLOR}"
+    echo "$GREEN done${NORMAL}"
 }
 
 
@@ -182,7 +220,7 @@ CatchDarksLights(){
     FIND=false
     PREV_NAME=0 # store the name of the image before the last discontinuity
     CHANGE_NAME=0 # the counter for the loop
-    for FILE in "$base_path/outAPN"/*; do # scann for all the files in the "outAPN" directoy
+    for FILE in "$base_path/RAW"/*; do # scann for all the files in the "RAW" directoy
         if ! $FIND; then
             if $TEST; then # check if it's the first file
                 TEST=false # turn the boolean to 'false'
@@ -219,10 +257,10 @@ Lights(){
     ##############
     # - Lights - #
     ##############
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_lights.txt") lights found.${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_lights.txt") lights found.${NORMAL}"
     echo "$(wc -l < "$root_path/.tmp/temp_lights.txt") lights found." >> "$root_path/.tmp/AutoClassifier.log"
     
-    echo "Move lights files to the ${YELLOW}'lights/'${NO_COLOR} directory..."
+    echo "Move lights files to the ${YELLOW}'lights/'${NORMAL} directory..."
     echo ""
 
     # Check if "lights" directory existe, otherwise create it
@@ -236,9 +274,9 @@ Lights(){
     do
         #echo "${line}..."
         OverWrite "${line}..."
-        mv "$base_path/outAPN"/${line} "$base_path/lights/"
+        mv "$base_path/RAW"/${line} "$base_path/lights/"
     done
-    echo "$GREEN done${NO_COLOR}"
+    echo "$GREEN done${NORMAL}"
 }
 
 
@@ -246,10 +284,10 @@ Darks(){
     #############
     # - Darks - #
     #############
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_darks.txt") darks found.${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_darks.txt") darks found.${NORMAL}"
     echo "$(wc -l < "$root_path/.tmp/temp_darks.txt") darks found." >> "$root_path/.tmp/AutoClassifier.log"
     
-    echo "Move darks files to the ${YELLOW}'darks/'${NO_COLOR} directory..."
+    echo "Move darks files to the ${YELLOW}'darks/'${NORMAL} directory..."
     echo ""
 
     # Check if "darks" directory existe, otherwise create it
@@ -263,34 +301,30 @@ Darks(){
     do
         #echo "${line}..."
         OverWrite "${line}..."
-        mv "$base_path/outAPN"/${line} "$base_path/darks/"
+        mv "$base_path/RAW"/${line} "$base_path/darks/"
     done
-    echo "$GREEN done${NO_COLOR}"
+    echo "$GREEN done${NORMAL}"
 }
 
 
 Undo(){
     start1=`gdate +%s.%3N`
-    echo "\n${MAGENTA}Undo previous process${NO_COLOR}\n"
+    echo "\n${YELLOW}${BOLD}${UNDERLINED}${TITLE}Undo previous process${NORMAL}\n"
     echo $(pwd)
     
-    # remove the old temporary files
+    # check if there is temporary files
     if [[ ! -e "$root_path/.tmp/temp_biases.txt" || ! -e "$root_path/.tmp/temp_flats.txt" || ! -e "$root_path/.tmp/temp_darks.txt" || ! -e "$root_path/.tmp/temp_lights.txt" || ! -e "$root_path/.tmp/temp_rotation.txt" ]]; then
-        echo "${RED}Error: no temporary files${NO_COLOR}"
+        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no temporary files${NORMAL}"
         echo "Impossible to undo, there is not all the temporary files..."
         echo "Error: No '.tmp/' directory" >> "$root_path/.tmp/AutoClassifier.log"
         Help
         exit 1
     fi
     
-    # search the last working directory in the .log
-    #base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
-    echo "${YELLOW}Working directory: ${NO_COLOR}${base_path}\n"
-    #echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
-    cd "$base_path"
+    echo "${YELLOW}Working directory: ${NORMAL}${base_path}\n"
     
     echo "move biases..."
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_biases.txt") images${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_biases.txt") images${NORMAL}"
     echo ""
     if [ ! -z "$(ls -A "$base_path/biases")" ]; then
         lines=$(cat "$root_path/.tmp/temp_biases.txt")
@@ -298,15 +332,15 @@ Undo(){
         do
             #echo "${line}..."
             OverWrite "${line}..."
-            mv "$base_path/biases"/${line} "$base_path/outAPN/"
+            mv "$base_path/biases"/${line} "$base_path/RAW/"
         done
-        echo "$GREEN done${NO_COLOR}"
+        echo "$GREEN done${NORMAL}"
     else
         echo "No file to move"
     fi
     
     echo "move flats..."
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_flats.txt") images${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_flats.txt") images${NORMAL}"
     echo ""
     if [ ! -z "$(ls -A "$base_path/flats")" ]; then
         lines=$(cat "$root_path/.tmp/temp_flats.txt")
@@ -314,15 +348,15 @@ Undo(){
         do
             #echo "${line}..."
             OverWrite "${line}..."
-            mv "$base_path/flats"/${line} "$base_path/outAPN/"
+            mv "$base_path/flats"/${line} "$base_path/RAW/"
         done
-        echo "$GREEN done${NO_COLOR}"
+        echo "$GREEN done${NORMAL}"
     else
         echo "No file to move"
     fi
 
     echo "move darks..."
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_darks.txt") images${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_darks.txt") images${NORMAL}"
     echo ""
     if [ ! -z "$(ls -A "$base_path/darks")" ]; then
         lines=$(cat "$root_path/.tmp/temp_darks.txt")
@@ -330,15 +364,15 @@ Undo(){
         do
             #echo "${line}..."
             OverWrite "${line}..."
-            mv "$base_path/darks"/${line} "$base_path/outAPN/"
+            mv "$base_path/darks"/${line} "$base_path/RAW/"
         done
-        echo "$GREEN done${NO_COLOR}"
+        echo "$GREEN done${NORMAL}"
     else
         echo "No file to move"
     fi
 
     echo "move lights..."
-    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_lights.txt") images${NO_COLOR}"
+    echo "${BLUE}$(wc -l < "$root_path/.tmp/temp_lights.txt") images${NORMAL}"
     echo ""
     if [ ! -z "$(ls -A "$base_path/lights")" ]; then
         lines=$(cat "$root_path/.tmp/temp_lights.txt")
@@ -346,9 +380,9 @@ Undo(){
         do
             #echo "${line}..."
             OverWrite "${line}..."
-            mv "$base_path/lights"/${line} "$base_path/outAPN/"
+            mv "$base_path/lights"/${line} "$base_path/RAW/"
         done
-        echo "$GREEN done${NO_COLOR}"
+        echo "$GREEN done${NORMAL}"
     else
         echo "No file to move"
     fi
@@ -359,7 +393,7 @@ Undo(){
     then
         echo "${BLUE}\c"
         exiftool -@ "$root_path/.tmp/temp_rotation.txt" -orientation="Rotate 270 CW" -overwrite_original_in_place
-        echo "$GREEN done${NO_COLOR}\n"
+        echo "$GREEN done${NORMAL}\n"
     fi
     
     end1=`gdate +%s.%3N`
@@ -372,10 +406,10 @@ Undo(){
 }
 
 Temporary() {
-    echo "\n${MAGENTA}Preview temporary files${NO_COLOR}\n"
+    echo "\n${YELLOW}${BOLD}${UNDERLINED}${TITLE}Preview temporary files${NORMAL}\n"
     echo "Detailed size of temporary files:"
     tot="$(echo "scale=1; "$(ls -lrt "${root_path}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
-    echo "${YELLOW}Total size of the temporary folder: ${NO_COLOR}$tot Ko"
+    echo "${YELLOW}Total size of the temporary folder: ${NORMAL}$tot Ko"
     echo "Size of temporary files: $tot Ko" >> "$root_path/.tmp/AutoClassifier.log"
     echo "$(ls -lrth "${root_path}/.tmp/")" >> "$root_path/.tmp/temporary.txt"
     echo "$(tail -n +2 "$root_path/.tmp/temporary.txt")" > "$root_path/.tmp/temporary.txt"
@@ -383,7 +417,7 @@ Temporary() {
     while IFS= read -r line
     do
         IFS=' ' read -r -a array <<< "$line"
-        echo "\t${array[4]} \t${BLUE}${array[8]}${NO_COLOR}"
+        echo "\t${array[4]} \t${BLUE}${array[8]}${NORMAL}"
     done < "$input"
 }
 
@@ -415,7 +449,7 @@ then
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     nb_files=$(ls "$base_path/lights" | wc -l | xargs)
     if [ $nb_files == 0 ]; then
-        echo "${RED}Error: No files to undo${NO_COLOR}"
+        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} No files to undo${NORMAL}"
         echo "Error: No files to undo" >> "$root_path/.tmp/AutoClassifier.log"
         printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
         echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
@@ -429,9 +463,10 @@ then
         
         if [[ $sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y" ]]; then
             Undo
+            echo "${SOUND}"
             exit 1
         else
-            echo "${RED}Abort undo${NO_COLOR}"
+            echo "${RED}Abort undo${NORMAL}"
             echo "Abort undo" >> "$root_path/.tmp/AutoClassifier.log"
             printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
             echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
@@ -449,7 +484,7 @@ then
     echo "Temporary files check" >> "$root_path/.tmp/AutoClassifier.log"
     Temporary
     
-    echo "\n${RED}!!! Warning !!!\nThis operation cannot be cancelled !\n${NO_COLOR}"
+    echo "\n${RED}${BOLD}${UNDERLINED}${BLINKING}!!! Warning !!!${NORMAL}${RED}\nThis operation cannot be cancelled !\n${NORMAL}"
     read -p "Do you want to clean up the temporary files (Y/n)? " res
     if [[ $res == "Y" || $res == "y" ]]; then
         base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
@@ -469,6 +504,7 @@ then
         echo "Temporary files cleanning" >> "$root_path/.tmp/AutoClassifier.log"
         printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
         echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
+        echo "${SOUND}"
     else
         printf '\n%.0s' {1..14} >> "$root_path/.tmp/AutoClassifier.log"
         echo "\n#################\n" >> "$root_path/.tmp/AutoClassifier.log"
@@ -495,7 +531,7 @@ if [[ $1 == "-r" || $1 == "-run" ]];
 then
     start1=`gdate +%s.%3N`
 
-    echo "\n${MAGENTA}Auto classification of astrophotography image${NO_COLOR}\n"
+    echo "\n${YELLOW}${BOLD}${UNDERLINED}${TITLE}Auto classification of astrophotography image${NORMAL}\n"
     
     if [ -z $2 ]; then
         read -p "Enter the folder to be filed: " wd
@@ -513,18 +549,19 @@ then
     IsPicture
     if [ $? == 1 ];
     then
+        echo "\n"
         Help
         exit 1;
     fi
 
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
     
-    nb_files=$(ls "$base_path/outAPN" | wc -l | xargs)
+    nb_files=$(ls "$base_path/RAW" | wc -l | xargs)
     echo "$nb_files images to process:" >> "$root_path/.tmp/AutoClassifier.log"
     echo "There are $nb_files images to process\n"
     
     if [ $nb_files == 0 ]; then
-        echo "${RED}Error: No files to process${NO_COLOR}"
+        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} No files to process${NORMAL}"
         Help
     else
         if [ -z $3 ]; then
@@ -534,7 +571,7 @@ then
         fi
         
         if [[ $sure == "Y" || $sure == "y" || $sure == "-y" || $sure == "-Y" ]]; then
-            echo "${MAGENTA}Start processing...${NO_COLOR}\n"
+            echo "${MAGENTA}Start processing${BLINKING}...${NORMAL}\n"
             CleanTmp            # Clean temporary files
             Rotation            # Rotate image in Horizontal mode
             Biases              # Extract the biases
@@ -542,8 +579,9 @@ then
             CatchDarksLights    # Differenciat the darks and the lights
             Darks               # Extract the darks
             Lights              # Extract the lights
+            echo "${SOUND}"
         else
-            echo "${RED}Abort process${NO_COLOR}"
+            echo "${RED}Abort process${NORMAL}"
             echo "Abort process" >> "$root_path/.tmp/AutoClassifier.log"
         fi
         
@@ -563,7 +601,7 @@ else
     # search the last working directory in the .log
     base_path=$(tail -n 24 ".tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
     echo "Working directory: $base_path" >> "$root_path/.tmp/AutoClassifier.log"
-    echo "${RED}Error: Unknown argument ?${NO_COLOR}\n"
+    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} Unknown argument ?${NORMAL}\n"
     echo "Error: Unknown argument ?" >> "$root_path/.tmp/AutoClassifier.log"
     Help
     printf '\n%.0s' {1..15} >> "$root_path/.tmp/AutoClassifier.log"
