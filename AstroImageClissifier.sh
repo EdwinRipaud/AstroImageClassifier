@@ -1,4 +1,9 @@
-#!/usr/local/bin/bash
+#!/bin/sh
+#  AstroImageClissifier.sh
+#
+#
+#  Created by edwin ripaud on 23/02/2022.
+
 
 # pour la commande de visualisation / suppression des fichiers temporaires, ajouter la visualisation sous forme d'arbre de fichier avec en plus la taille
 
