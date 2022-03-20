@@ -19,4 +19,3 @@ fi
 
 #source "/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Param_func.sh"
 
-read_param
