@@ -1,0 +1,57 @@
+ 
+\033[33m\033[1m\033[4mThis is the Help page\033[m
+ 
+\033[1m\033[4mDescription:\033[m
+This utility command script help you to classify your RAW images, out of your
+APN SD card, into 4 folders: Biases, Darks, Flats and Lights. Then you can
+easily use those folder to process your image, like with \033[3m\033[1mSiril.\033[m
+You need to put all your image in the same folder named \033[1m\033[3m'RAW'\033[m, which need to
+be place inside your working directory, for instance named as you picture
+object \033[1m\033[3m'Orion M42'.\033[m
+ 
+Your folder architecture tree need to be like this:
+ 
+	\033[1m\033[4mBefore classification\033[m		\033[1m\033[4mAfter classification\033[m
+				  \033[1m|\033[m
+  \033[1mOrion M42\033[m			  \033[1m|\033[m	     \033[1mOrion M42\033[m
+     \033[2m\033[1m\033[1m\033[1m\033[1m\033[1m|->\033[m \033[1mRAW\033[m			  \033[1m|\033[m		\033[2m\033[1m|->\033[m \033[1mBiases\033[m
+	  \033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0001.CR3\033[m	  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0001.CR3\033[m
+	  \033[2m\033[1m|\033[m \033[1m...\033[m			  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|\033[m \033[1m...\033[m
+	  \033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0120.CR3\033[m	  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0010.CR3\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|->\033[m \033[1mDarks\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0011.CR3\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|\033[m \033[1m...\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0020.CR3\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|->\033[m \033[1mFlats\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0021.CR3\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|\033[m \033[1m...\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0030.CR3\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|->\033[m \033[1mLights\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0031.CR3\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|\033[m \033[1m...\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[34mIMG_0120.CR3\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|->\033[m \033[1mRAW\033[m
+				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[31mEmpty\033[m
+ 
+\033[1m\033[4mOption:\033[m
+    -r \033[2m(-run)\033[m: lunch the classification process. Add the path to the RAW images
+	directory. You can add -Y to process directly the images.
+    -u \033[2m(-undo)\033[m: undo the last process, move back the images and rotate them as 
+	before. You can add -Y to undo directly the last action
+    -t \033[2m(-temporary)\033[m: show the volume of the .tmp files. You can clean up the
+	files if they take too much space.
+    -h \033[2m(-help)\033[m: show this help page.
+
+\033[1m\033[4mExemples:\033[m
+    sh AstroImageClissifier.sh -r Test -Y
+	\033[1m-->\033[m Lunch direclty the classification of the images in the folder 'Test'
+ 
+    sh AstroImageClissifier.sh -u
+	\033[1m-->\033[m Undo the last classification process, with -Y you can skip the
+	    confirmation
+ 
+................................................................................
