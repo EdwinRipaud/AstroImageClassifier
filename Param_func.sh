@@ -46,6 +46,14 @@ run_process() {
     echo "Running process ..."
 }
 
+undo_process() {
+    echo "Undo process ..."
+}
+
+temp_check() {
+    echo "Temporary files checking"
+}
+
 help_fnc() {
         OLDIFS=$IFS
     IFS=$'\n'

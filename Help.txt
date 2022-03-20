@@ -1,13 +1,16 @@
  
+................................................................................
+ 
 \033[33m\033[1m\033[4mThis is the Help page\033[m
  
 \033[1m\033[4mDescription:\033[m
-This utility command script help you to classify your RAW images, out of your
-APN SD card, into 4 folders: Biases, Darks, Flats and Lights. Then you can
-easily use those folder to process your image, like with \033[3m\033[1mSiril.\033[m
-You need to put all your image in the same folder named \033[1m\033[3m'RAW'\033[m, which need to
-be place inside your working directory, for instance named as you picture
-object \033[1m\033[3m'Orion M42'.\033[m
+	This utility command script help you to classify your RAW images, out
+	of your APN SD card, into 4 folders: Biases, Darks, Flats and Lights.
+	Then you can easily use those folder to process your image, like with
+	\033[3m\033[1mSiril.\033[m
+	You need to put all your image in the same folder named \033[1m\033[3m'RAW'\033[m, which
+	need to be place inside your working directory, for instance named as
+	you picture object \033[1m\033[3m'Orion M42'.\033[m
  
 Your folder architecture tree need to be like this:
  
