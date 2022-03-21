@@ -6,29 +6,42 @@
 #  Created by edwin ripaud on 19/03/2022.
 #  
 
-root_path=$(pwd)
-source "$root_path/Param_func.sh"
+ROOT_PATH="$(pwd)"
+source "$ROOT_PATH/Param_func.sh"
 
-OPT="$1"
-DIR="$2"
 
-case $OPT in
-    ("-r" | "-run")
-        echo "Run process"
-        run_process
-        ;;
+while getopts ":r:uth" OPT "$@"; do
+    echo "Flag read: $OPT"
     
-    ("-u" | "-undo")
-        echo "Undo process"
-        undo_process
-        ;;
-    
-    ("-t" | "-temp")
-        echo "Temporary files checking"
-        temp_check
-        ;;
-    
-    ("-h" | "-help" | "")
-        help_fnc
-        ;;
-esac
+    case $OPT in
+        (":")
+            echo "Wait you didn't enter the directory to classify"
+            read -p "Enter the folder to be filed: " OPTARG
+            cd "$OPTARG"
+            BASE_PATH="$(pwd)"
+            echo "$BASE_PATH"
+            run_process "$BASE_PATH"
+            ;;
+        
+        ("r")
+            cd "$OPTARG"
+            BASE_PATH="$(pwd)"
+            echo "Run process in $BASE_PATH"
+            run_process "$BASE_PATH"
+            ;;
+
+        ("u")
+            echo "Undo process"
+            undo_process
+            ;;
+
+        ("t")
+            echo "Temporary files checking"
+            temp_check
+            ;;
+
+        ("h" | "?")
+            help_fnc
+            ;;
+    esac
+done

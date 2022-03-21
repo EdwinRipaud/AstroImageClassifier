@@ -48,7 +48,7 @@ Your folder architecture tree need to be like this:
     -t \033[2m(-temporary)\033[m: show the volume of the .tmp files. You can clean up the
 	files if they take too much space.
     -h \033[2m(-help)\033[m: show this help page.
-
+ 
 \033[1m\033[4mExemples:\033[m
     sh AstroImageClissifier.sh -r Test -Y
 	\033[1m-->\033[m Lunch direclty the classification of the images in the folder 'Test'
