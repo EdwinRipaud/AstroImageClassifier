@@ -9,8 +9,9 @@
 ROOT_PATH="$(pwd)"
 source "$ROOT_PATH/Param_func.sh"
 
+load_param
 
-while getopts ":r:uth" OPT "$@"; do
+while getopts ":r:uthp" OPT "$@"; do
     echo "Flag read: $OPT"
     
     case $OPT in
@@ -38,6 +39,11 @@ while getopts ":r:uth" OPT "$@"; do
         ("t")
             echo "Temporary files checking"
             temp_check
+            ;;
+
+        ("p")
+            echo "Update parameters"
+            update_param
             ;;
 
         ("h" | "?")

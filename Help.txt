@@ -41,13 +41,16 @@ Your folder architecture tree need to be like this:
 				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[31mEmpty\033[m
  
 \033[1m\033[4mOption:\033[m
-    -r \033[2m(-run)\033[m: lunch the classification process. Add the path to the RAW images
+    -r : lunch the classification process. Add the path to the RAW images
 	directory. You can add -Y to process directly the images.
-    -u \033[2m(-undo)\033[m: undo the last process, move back the images and rotate them as 
+    -u : undo the last process, move back the images and rotate them as 
 	before. You can add -Y to undo directly the last action
-    -t \033[2m(-temporary)\033[m: show the volume of the .tmp files. You can clean up the
+    -t : show the volume of the .tmp files. You can clean up the
 	files if they take too much space.
-    -h \033[2m(-help)\033[m: show this help page.
+    -p : update parameters like classification folder names, maximum size
+	and date of the temporary files, and the screen time for the action
+	during the process.
+    -h : show this help page.
  
 \033[1m\033[4mExemples:\033[m
     sh AstroImageClissifier.sh -r Test -Y

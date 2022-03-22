@@ -20,20 +20,54 @@ BLINKING='\033[5m'
 REVERSE='\033[7m'
 SOUND='\007'
 
+FOLDERS_NAMES=("Biases" "Darks" "Flats" "Lights")
+MAX_SIZE=20
+MAX_AGE=90
 SLEEP=0.05
 
-OverWrite(){
-    sleep "$SLEEP" # sleep for 50ms, juste to see that the line is being overwrite
+overwrite(){
+    sleep "$SLEEP"
     printf "\033[1A"  # move cursor one line up
     printf "\033[K"   # delete till end of line
     echo $1
 }
 
-read_param() {
-    echo "$(cat "parameters.config")"
+load_param() {
+    echo "Loading parameters${BLINKING}...${NORMAL}"
+    OLDIFS=$IFS
+    IFS=$'\n'
+    lines=$(cat "parameters.config")
+    for line in $lines
+    do
+        if [[ $line == *"-"* ]]; then
+            Val=$(echo "$line" | grep -o ".- *")
+            case $Val in
+                ("1- ")
+                    IFS="; "
+                    i=0
+                    for name in ${line#*: };
+                    do
+                        FOLDERS_NAMES[$i]=$name
+                        ((i+=1))
+                    done
+                    ;;
+                    
+                ("2- ")
+                    MAX_SIZE=${line#*: };;
+                ("3- ")
+                    MAX_AGE=${line#*: };;
+                ("4- ")
+                    SLEEP=$(echo "${line#*: }/1000" | bc -l);;
+                (*)
+                    echo "Error";;
+            esac
+        fi
+    done
+    IFS=$OLDIFS
+    echo "${GREEN}Done${NORMAL}"
 }
 
-write_param() {
+update_param() {
     OLDIFS=$IFS
     IFS=$'\n'
     lines=$(cat "parameters.config")
