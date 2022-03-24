@@ -6,24 +6,27 @@
 #  Created by edwin ripaud on 19/03/2022.
 #  
 
+# TODO: Penser à mettre 'Help.txt', 'parameters.config' et 'Param_func.sh' dans un dossier 'src'
+# TODO: une fois les fonctions fini d'écrire dans 'Param_func.sh', découper le fichier en plusieurs fichiers regroupant les fonctions en catégorie
+
 ROOT_PATH="$(pwd)"
 source "$ROOT_PATH/Param_func.sh"
 
 load_param
 
 while getopts ":r:uthp" OPT "$@"; do
-    echo "Flag read: $OPT"
-    
+    echo "\nFlag read: $OPT\n"
+
     case $OPT in
         (":")
-            echo "Wait you didn't enter the directory to classify"
+            echo "Wait, where is the directory to classify???"
             read -p "Enter the folder to be filed: " OPTARG
             cd "$OPTARG"
             BASE_PATH="$(pwd)"
             echo "$BASE_PATH"
             run_process "$BASE_PATH"
             ;;
-        
+
         ("r")
             cd "$OPTARG"
             BASE_PATH="$(pwd)"
@@ -42,7 +45,7 @@ while getopts ":r:uthp" OPT "$@"; do
             ;;
 
         ("p")
-            echo "Update parameters"
+            echo "${BOLD}${UNDERLINED}Update parameters${NORMAL}\n"
             update_param
             ;;
 
