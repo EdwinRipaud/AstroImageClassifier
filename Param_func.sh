@@ -23,7 +23,7 @@ SOUND='\007'
 FOLDERS_NAMES=("Biases" "Darks" "Flats" "Lights")
 BIASE_EXP_TIME=4000
 FLATS_EXP_VALUE=10
-FILE_NUM_DIFF-5
+FILE_NUM_DIFF=5
 MAX_SIZE=20
 MAX_AGE=90
 SLEEP=0.05
@@ -82,6 +82,57 @@ load_param() {
     echo "${GREEN}Done${NORMAL}"
 }
 
+clean_tmp(){
+    # remove the old temporary files
+    if [ -e "$ROOT_PATH/.tmp/temp_biases.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temp_biases.txt"
+    fi
+
+    if [ -e "$ROOT_PATH/.tmp/temp_flats.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temp_flats.txt"
+    fi
+
+    if [ -e "$ROOT_PATH/.tmp/temp_darks.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temp_darks.txt"
+    fi
+
+    if [ -e "$ROOT_PATH/.tmp/temp_lights.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temp_lights.txt"
+    fi
+
+    if [ -e "$ROOT_PATH/.tmp/temp_rot.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temp_rot.txt"
+    fi
+
+    if [ -e "$ROOT_PATH/.tmp/temp_rotation.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temp_rotation.txt"
+    fi
+    
+    log_weight=$(echo "scale=1; "$(ls -lrt "$ROOT_PATH/.tmp/AutoClassifier.log" | awk '{ total += $5 }; END { print total }')"/1024" | bc)
+    
+    log_date=$(stat -s "$ROOT_PATH/.tmp/AutoClassifier.log")
+    log_date="${log_date#*"st_mtime="}"
+    log_date="${log_date%st_ctime*}"
+    log_date_diff="$(echo "($TODAY - $log_date)/(3600*24)" | bc -l)"
+    
+    oversize=$(echo "$log_weight > $MAX_SIZE" | bc -l)
+    overage=$(echo "$log_date_diff >= $MAX_AGE" | bc -l)
+    
+    if [[ ! $oversize || ! $overage ]]; then
+        old="$(tail -n 24 "$ROOT_PATH/.tmp/AutoClassifier.log")"
+        rm "$ROOT_PATH/.tmp/AutoClassifier.log"
+        echo "$old" >> "$ROOT_PATH/.tmp/AutoClassifier.log"
+    else
+        echo "It's too yound to die"
+    fi
+}
+
 is_folder_name_valide() {
     OLDIFS=$IFS
     IFS="; "
@@ -110,7 +161,7 @@ write_param() {
 update_param() {
     OLDIFS=$IFS
     IFS=$'\n'
-    lines=$(cat "parameters.config")
+    lines=$(cat "$ROOT_PATH/parameters.config")
     for line in $lines
     do
         Val=$(echo "$line" | grep -o ".- *")

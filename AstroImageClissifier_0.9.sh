@@ -9,10 +9,14 @@
 # TODO: Penser à mettre 'Help.txt', 'parameters.config' et 'Param_func.sh' dans un dossier 'src'
 # TODO: une fois les fonctions fini d'écrire dans 'Param_func.sh', découper le fichier en plusieurs fichiers regroupant les fonctions en catégorie
 
+# TODO: issue sur le changement des paramètres, cela change le numéro du paramètre quand la valleur est égale à celle du numéro.
+
 ROOT_PATH="$(pwd)"
+TODAY="$(date +%s)"
 source "$ROOT_PATH/Param_func.sh"
 
 load_param
+clean_tmp
 
 while getopts ":r:uthp" OPT "$@"; do
     echo "\nFlag read: $OPT\n"
