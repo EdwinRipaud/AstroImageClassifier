@@ -155,7 +155,7 @@ is_folder_name_valide() {
 }
 
 write_param() {
-    sed -i '' "/^$1/s/$2/$3/g" "parameters.config"
+    sed -i '' "/^$1/s/\(.*\)$2/\1$3/" "parameters.config"
 }
 
 update_param() {
