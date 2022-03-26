@@ -113,6 +113,11 @@ clean_tmp(){
     then
         rm "$ROOT_PATH/.tmp/temp_rotation.txt"
     fi
+
+    if [ -e "$ROOT_PATH/.tmp/temporary.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temporary.txt"
+    fi
     
     log_weight=$(echo "scale=1; "$(ls -lrt "$ROOT_PATH/.tmp/AutoClassifier.log" | awk '{ total += $5 }; END { print total }')"/1024" | bc)
     
@@ -136,7 +141,7 @@ clean_tmp(){
 is_folder_name_valide() {
     OLDIFS=$IFS
     IFS="; "
-                        
+    
     i=0
     folder_name=()
     for name in $1;
@@ -172,9 +177,9 @@ update_param() {
         fi
     done
     IFS=$OLDIFS
-    echo "\nEnter the number of the parameter that you want to change ${DIM}(or \"n\" to quit)${NORMAL}:"
+    echo "\nEnter the number of the parameter to change ${DIM}(\"n\" or \"q\" to exit)${NORMAL}:"
     read arg
-    while [ "$arg" != "n" ];
+    while [[ "$arg" != "n" && "$arg" != "q" ]];
     do
         case "$arg" in
             ("1")
@@ -194,14 +199,14 @@ update_param() {
                 fi
                 ;;
             ("2")
-                echo "\n${BOLD}${UNDERLINED}Biases exposure time${NORMAL}"
+                echo "\n${BOLD}${UNDERLINED}Biases exposure time (in 1/X s)${NORMAL}"
                 actual="$(echo "$(cat "parameters.config")" | grep "2- B*")"
-                echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
+                echo "Actual value: : ${BOLD}1/${actual#*: } s${NORMAL}"
                 echo "Enter the new exposure time:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
-                    echo "\nNew exposure time saved as: ${UNDERLINED}$newArg${NORMAL}"
+                    echo "\nNew exposure time saved as: ${UNDERLINED}1/$newArg$ s{NORMAL}"
                     write_param "2- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
@@ -209,14 +214,14 @@ update_param() {
                 fi
                 ;;
             ("3")
-                echo "\n${BOLD}${UNDERLINED}Flats exposure value${NORMAL}"
+                echo "\n${BOLD}${UNDERLINED}Flats exposure value (in EV)${NORMAL}"
                 actual="$(echo "$(cat "parameters.config")" | grep "3- F*")"
-                echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
+                echo "Actual value: : ${BOLD}${actual#*: } EV${NORMAL}"
                 echo "Enter the new exposure value:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
-                    echo "\nNew exposure value saved as: ${UNDERLINED}$newArg${NORMAL}"
+                    echo "\nNew exposure value saved as: ${UNDERLINED}$newArg EV${NORMAL}"
                     write_param "3- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
@@ -239,14 +244,14 @@ update_param() {
                 fi
                 ;;
             ("5")
-                echo "\n${BOLD}${UNDERLINED}Max size${NORMAL}"
+                echo "\n${BOLD}${UNDERLINED}Max size (in ko)${NORMAL}"
                 actual="$(echo "$(cat "parameters.config")" | grep "5- M*")"
-                echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
+                echo "Actual value: : ${BOLD}${actual#*: } ko${NORMAL}"
                 echo "Enter the new maximum size for temporary files:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
-                    echo "\nNew max size saved as: ${UNDERLINED}$newArg${NORMAL}"
+                    echo "\nNew max size saved as: ${UNDERLINED}$newArg ko${NORMAL}"
                     write_param "5- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
@@ -254,14 +259,14 @@ update_param() {
                 fi
                 ;;
             ("6")
-                echo "\n${BOLD}${UNDERLINED}Max age${NORMAL}"
+                echo "\n${BOLD}${UNDERLINED}Max age (in day)${NORMAL}"
                 actual="$(echo "$(cat "parameters.config")" | grep "6- M*")"
-                echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
+                echo "Actual value: : ${BOLD}${actual#*: } days${NORMAL}"
                 echo "Enter the new maximum age for temporary files:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
-                    echo "\nNew max age saved as: ${UNDERLINED}$newArg${NORMAL}"
+                    echo "\nNew max age saved as: ${UNDERLINED}$newArg days${NORMAL}"
                     write_param "6- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
@@ -269,14 +274,14 @@ update_param() {
                 fi
                 ;;
             ("7")
-                echo "\n${BOLD}${UNDERLINED}Overwrite screen time${NORMAL}"
+                echo "\n${BOLD}${UNDERLINED}Overwrite screen time (in ms)${NORMAL}"
                 actual="$(echo "$(cat "parameters.config")" | grep "7- O*")"
-                echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
+                echo "Actual value: : ${BOLD}${actual#*: } ms${NORMAL}"
                 echo "Enter the new screen time:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
-                    echo "\nNew screen time saved as: ${UNDERLINED}$newArg${NORMAL}"
+                    echo "\nNew screen time saved as: ${UNDERLINED}$newArg ms${NORMAL}"
                     write_param "7- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
@@ -284,10 +289,10 @@ update_param() {
                 fi
                 ;;
             (*)
-                echo "\n${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD}Wrong number${NORMAL}"
+                echo "\n${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} Wrong number${NORMAL}"
                 ;;
         esac
-        echo "\nEnter the number of the parameter that you want to change ${DIM}(or \"n\" to quit)${NORMAL}: "
+        echo "\nEnter the number of the parameter to change ${DIM}(\"n\" or \"q\" to exit)${NORMAL}: "
         read arg
     done
     
@@ -306,8 +311,10 @@ IsPicture(){
 
 run_process() {
     echo "Running process ..."
-    if [ "$1" != "" ]; then
+    if [ -d "$1" ]; then
         echo "$1"
+    else
+        echo "error ..."
     fi
 }
 
@@ -316,7 +323,30 @@ undo_process() {
 }
 
 temp_check() {
-    echo "Temporary files checking"
+    echo "Detailed size of temporary files:"
+    tot="$(echo "scale=1; "$(ls -lrt "${ROOT_PATH}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
+    echo "${UNDERLINED}Total size:${NORMAL} $tot Ko"
+    echo "$(ls -lrth "${ROOT_PATH}/.tmp/")" >> "$ROOT_PATH/.tmp/temporary.txt"
+    echo "$(tail -n +2 "$ROOT_PATH/.tmp/temporary.txt")" > "$ROOT_PATH/.tmp/temporary.txt"
+    input="$ROOT_PATH/.tmp/temporary.txt"
+    while IFS= read -r line
+    do
+        IFS=' ' read -r -a array <<< "$line"
+        echo "\t${array[4]} \t${BLUE}${array[8]}${NORMAL}"
+    done < "$input"
+}
+
+temp_clear() {
+    OLDIFS=$IFS
+    input="$ROOT_PATH/.tmp/temporary.txt"
+    while IFS= read -r line
+    do
+        IFS=' ' read -r -a array <<< "$line"
+        rm "$ROOT_PATH/.tmp/${array[8]}"
+    done < "$input"
+    rm "$ROOT_PATH/.tmp/temporary.txt"
+    echo "${SOUND}"
+    IFS=$OLDIFS
 }
 
 help_fnc() {
