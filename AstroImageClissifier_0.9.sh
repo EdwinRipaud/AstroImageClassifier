@@ -9,15 +9,16 @@
 # TODO: Penser à mettre 'Help.txt', 'parameters.config' et 'Param_func.sh' dans un dossier 'src'
 # TODO: une fois les fonctions fini d'écrire dans 'Param_func.sh', découper le fichier en plusieurs fichiers regroupant les fonctions en catégorie
 
-# TODO: issue sur le changement des paramètres, cela change le numéro du paramètre quand la valleur est égale à celle du numéro.
-
 ROOT_PATH="$(pwd)"
-BASE_PATH=$(tail -n 24 "$ROOT_PATH/.tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
-TODAY="$(date +%s)"
+
 source "$ROOT_PATH/Param_func.sh"
 
+BASE_PATH=$(tail -n $LOG_LENGTH "$ROOT_PATH/.tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+TODAY="$(date +%s)"
+
 load_param
-clean_tmp
+clean_oversize
+
 
 while getopts ":r:uthp" OPT "$@"; do
     echo "\nFlag read: $OPT\n"
@@ -31,22 +32,39 @@ while getopts ":r:uthp" OPT "$@"; do
                 echo "This is not a folder..."
                 read -p "Enter the folder to be filed: " OPTARG
             done
+            
             cd "$OPTARG"
             BASE_PATH="$(pwd)"
-            run_process "$BASE_PATH"
-            ;;
+            IsPicture
+            if [ $? == 1 ];
+            then
+                help_fnc
+                exit 1;
+            fi
+                        
+            echo "Run process in $BASE_PATH"
+            run_process
+            
+            exit 1;;
 
         ("r")
             cd "$OPTARG"
             BASE_PATH="$(pwd)"
+            IsPicture
+            if [ $? == 1 ];
+            then
+                help_fnc
+                exit 1;
+            fi
+            
             echo "Run process in $BASE_PATH"
-            run_process "$BASE_PATH"
-            ;;
+            run_process
+            exit 1;;
 
         ("u")
             echo "Undo process"
             undo_process
-            ;;
+            exit 1;;
 
         ("t")
             echo "${BOLD}${UNDERLINED}${TITLE}Preview temporary files${NORMAL}\n"
@@ -59,15 +77,15 @@ while getopts ":r:uthp" OPT "$@"; do
             else
                 echo "Clear temporary files abort"
             fi
-            ;;
+            exit 1;;
 
         ("p")
             echo "${BOLD}${UNDERLINED}Update parameters${NORMAL}\n"
             update_param
-            ;;
+            exit 1;;
 
         ("h" | "?")
             help_fnc
-            ;;
+            exit 1;;
     esac
 done
