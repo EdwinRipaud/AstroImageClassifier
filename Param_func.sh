@@ -23,9 +23,11 @@ SOUND='\007'
 LOG_LENGTH=24
 
 FOLDERS_NAMES=("Biases" "Darks" "Flats" "Lights")
+ORIENTATION_NAMES=("Horizontal (normal)" "Rotate 180" "Rotate 90 CW" "Rotate 270 CW")
 BIASE_EXP_TIME=4000
 FLATS_EXP_VALUE=10
 FILE_NUM_DIFF=5
+ORIENTATION="Horizontal (normal)"
 MAX_SIZE=20
 MAX_AGE=90
 SLEEP=0.05
@@ -67,12 +69,19 @@ load_param() {
                     FILE_NUM_DIFF=${line#*: }
                     ;;
                 ("5- ")
-                    MAX_SIZE=${line#*: }
+                    if [[ "${ORIENTATION_NAMES[*]}" =~ "${line#*: }" ]]; then
+                        ORIENTATION="${line#*: }"
+                    else
+                        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} orientation value unknown.${NORMAL}"
+                    fi
                     ;;
                 ("6- ")
-                    MAX_AGE=${line#*: }
+                    MAX_SIZE=${line#*: }
                     ;;
                 ("7- ")
+                    MAX_AGE=${line#*: }
+                    ;;
+                ("8- ")
                     SLEEP=$(echo "${line#*: }/1000" | bc -l)
                     ;;
                 (*)
@@ -131,7 +140,7 @@ is_folder_name_valide() {
 }
 
 write_param() {
-    sed -i '' "/^$1/s/\(.*\)$2/\1$3/" "parameters.config"
+    sed -i '' "/^$1/s/\(.*\)$2/\1$3/" "$ROOT_PATH/parameters.config"
 }
 
 update_param() {
@@ -140,11 +149,11 @@ update_param() {
     lines=$(cat "$ROOT_PATH/parameters.config")
     for line in $lines
     do
-        Val=$(echo "$line" | grep -o ".- *")
-        if [[ "$Val" == "" ]]; then
+        val=$(echo "$line" | grep -o ".- *")
+        if [[ "$val" == "" ]]; then
             echo "${UNDERLINED}$line${NORMAL}"
         else
-            echo "\t${line%[(|:]*}"
+            echo "\t${line% :*}"
         fi
     done
     IFS=$OLDIFS
@@ -215,29 +224,30 @@ update_param() {
                 fi
                 ;;
             ("5")
-                echo "\n${BOLD}${UNDERLINED}Max size (in ko)${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "5- M*")"
-                echo "Actual value: : ${BOLD}${actual#*: } ko${NORMAL}"
-                echo "Enter the new maximum size for temporary files:"
+                echo "\n${BOLD}${UNDERLINED}Frame orientaion${NORMAL}"
+                echo "Posible orientation:\n\t(1) \"Horizontal (normal)\"\n\t(2) \"Rotate 180\"\n\t(3) \"Rotate 90 CW\"\n\t(4) \"Rotate 270 CW\"\n"
+                actual="$(echo "$(cat "parameters.config")" | grep "5- F*")"
+                echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
+                echo "Enter the number of the new orientation:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
-                    echo "\nNew max size saved as: ${UNDERLINED}$newArg ko${NORMAL}"
-                    write_param "5- " "${actual#*: }" "$newArg"
+                    echo "\nNew orientation saved as: ${UNDERLINED}${ORIENTATION_NAMES[(($newArg-1))]}${NORMAL}"
+                    write_param "5- " "${actual#*: }" "${ORIENTATION_NAMES[(($newArg-1))]}"
                     echo "${GREEN}done${NORMAL}"
                 else
                     echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
                 fi
                 ;;
             ("6")
-                echo "\n${BOLD}${UNDERLINED}Max age (in day)${NORMAL}"
+                echo "\n${BOLD}${UNDERLINED}Max size (in ko)${NORMAL}"
                 actual="$(echo "$(cat "parameters.config")" | grep "6- M*")"
-                echo "Actual value: : ${BOLD}${actual#*: } days${NORMAL}"
-                echo "Enter the new maximum age for temporary files:"
+                echo "Actual value: : ${BOLD}${actual#*: } ko${NORMAL}"
+                echo "Enter the new maximum size for temporary files:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
-                    echo "\nNew max age saved as: ${UNDERLINED}$newArg days${NORMAL}"
+                    echo "\nNew max size saved as: ${UNDERLINED}$newArg ko${NORMAL}"
                     write_param "6- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
@@ -245,15 +255,30 @@ update_param() {
                 fi
                 ;;
             ("7")
+                echo "\n${BOLD}${UNDERLINED}Max age (in day)${NORMAL}"
+                actual="$(echo "$(cat "parameters.config")" | grep "7- A*")"
+                echo "Actual value: : ${BOLD}${actual#*: } days${NORMAL}"
+                echo "Enter the new maximum age for temporary files:"
+                read newArg
+                re='^[0-9]+$'
+                if [[ $newArg =~ $re ]]; then
+                    echo "\nNew max age saved as: ${UNDERLINED}$newArg days${NORMAL}"
+                    write_param "7- " "${actual#*: }" "$newArg"
+                    echo "${GREEN}done${NORMAL}"
+                else
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                fi
+                ;;
+            ("9")
                 echo "\n${BOLD}${UNDERLINED}Overwrite screen time (in ms)${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "7- O*")"
+                actual="$(echo "$(cat "parameters.config")" | grep "8- O*")"
                 echo "Actual value: : ${BOLD}${actual#*: } ms${NORMAL}"
                 echo "Enter the new screen time:"
                 read newArg
                 re='^[0-9]+$'
                 if [[ $newArg =~ $re ]]; then
                     echo "\nNew screen time saved as: ${UNDERLINED}$newArg ms${NORMAL}"
-                    write_param "7- " "${actual#*: }" "$newArg"
+                    write_param "8- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
                     echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
@@ -312,6 +337,11 @@ clean_tmp(){
         rm "$ROOT_PATH/.tmp/temp_rotation.txt"
     fi
 
+    if [ -e "$ROOT_PATH/.tmp/temp_rotation_orientation.txt" ];
+    then
+        rm "$ROOT_PATH/.tmp/temp_rotation_orientation.txt"
+    fi
+
     if [ -e "$ROOT_PATH/.tmp/temporary.txt" ];
     then
         rm "$ROOT_PATH/.tmp/temporary.txt"
@@ -333,7 +363,15 @@ rotation(){
     # catch and rotate all the images that aren't in Horizontal (normal) position
     echo "Search non-horizontal (normal) image"
     prefix="$(echo "$BASE_PATH/RAW/" | sed 's_/_\\/_g')"
-    exiftool -filename -if '$orientation ne "Horizontal (normal)"' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: /'"${prefix}"'/' >> "$ROOT_PATH/.tmp/temp_rotation.txt"
+    phrase="\$orientation ne \"$ORIENTATION\""
+    exiftool -filename -orientation -if "$phrase" -r "$BASE_PATH/RAW" | grep -w -e "File Name" -e "Orientation"  | sed 's/.*: //' >> "$ROOT_PATH/.tmp/temp_rot_ori.txt"
+    
+    while read -r one; do
+        read -r two
+        echo "$BASE_PATH/RAW/$one" >> "$ROOT_PATH/.tmp/temp_rotation.txt"
+        echo "$BASE_PATH/RAW/$one; $two" >> "$ROOT_PATH/.tmp/temp_rotation_orientation.txt"
+    done < "$ROOT_PATH/.tmp/temp_rot_ori.txt"
+    rm "$ROOT_PATH/.tmp/temp_rot_ori.txt"
     
     echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_rotation.txt") bad rotation found.${NORMAL}"
     echo "Rotate images...${BLUE}"
@@ -508,9 +546,7 @@ run_process() {
 }
 
 undo_process() {
-    echo "Undo process ..."
     start1=`gdate +%s.%3N`
-    echo "${BOLD}${UNDERLINED}Undo previous process${NORMAL}\n"
     echo $(pwd)
     
     # check if there is temporary files
@@ -521,11 +557,10 @@ undo_process() {
         exit 1
     fi
     
-    echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}\n"
+    echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
     
-    echo "move biases..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_biases.txt") images${NORMAL}"
-    echo ""
+    echo "\nmove biases..."
+    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_biases.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/biases")" ]; then
         lines=$(cat "$ROOT_PATH/.tmp/temp_biases.txt")
         for line in $lines
@@ -533,14 +568,13 @@ undo_process() {
             overwrite "${line}..."
             mv "$BASE_PATH/biases"/${line} "$BASE_PATH/RAW/"
         done
-        echo "$GREEN done${NORMAL}"
+        echo "${GREEN}done${NORMAL}"
     else
         echo "No file to move"
     fi
     
-    echo "move flats..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_flats.txt") images${NORMAL}"
-    echo ""
+    echo "\nmove flats..."
+    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_flats.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/flats")" ]; then
         lines=$(cat "$ROOT_PATH/.tmp/temp_flats.txt")
         for line in $lines
@@ -548,14 +582,13 @@ undo_process() {
             overwrite "${line}..."
             mv "$BASE_PATH/flats"/${line} "$BASE_PATH/RAW/"
         done
-        echo "$GREEN done${NORMAL}"
+        echo "${GREEN}done${NORMAL}"
     else
         echo "No file to move"
     fi
 
-    echo "move darks..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_darks.txt") images${NORMAL}"
-    echo ""
+    echo "\nmove darks..."
+    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_darks.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/darks")" ]; then
         lines=$(cat "$ROOT_PATH/.tmp/temp_darks.txt")
         for line in $lines
@@ -563,14 +596,13 @@ undo_process() {
             overwrite "${line}..."
             mv "$BASE_PATH/darks"/${line} "$BASE_PATH/RAW/"
         done
-        echo "$GREEN done${NORMAL}"
+        echo "${GREEN}done${NORMAL}"
     else
         echo "No file to move"
     fi
 
-    echo "move lights..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_lights.txt") images${NORMAL}"
-    echo ""
+    echo "\nmove lights..."
+    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_lights.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/lights")" ]; then
         lines=$(cat "$ROOT_PATH/.tmp/temp_lights.txt")
         for line in $lines
@@ -578,16 +610,17 @@ undo_process() {
             overwrite "${line}..."
             mv "$BASE_PATH/lights"/${line} "$BASE_PATH/RAW/"
         done
-        echo "$GREEN done${NORMAL}"
+        echo "${GREEN}done${NORMAL}"
     else
         echo "No file to move"
     fi
     
-    echo "rotate images..."
-    if [ -e "$ROOT_PATH/.tmp/temp_rotation.txt" ];
+    echo "\nrotate images..."
+    if [ -e "$ROOT_PATH/.tmp/temp_rotation_orientation.txt" ];
     then
-        echo "${BLUE}\c"
-        exiftool -@ "$ROOT_PATH/.tmp/temp_rotation.txt" -orientation="Rotate 270 CW" -overwrite_original_in_place
+        while read -r line; do
+            exiftool "${line%; *}" -orientation="${line#*; }" -overwrite_original_in_place > "/dev/null"
+        done < "$ROOT_PATH/.tmp/temp_rotation_orientation.txt"
         echo "${GREEN}done${NORMAL}\n"
     fi
     

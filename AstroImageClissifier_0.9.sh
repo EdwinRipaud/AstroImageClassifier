@@ -9,6 +9,8 @@
 # TODO: Penser à mettre 'Help.txt', 'parameters.config' et 'Param_func.sh' dans un dossier 'src'
 # TODO: une fois les fonctions fini d'écrire dans 'Param_func.sh', découper le fichier en plusieurs fichiers regroupant les fonctions en catégorie
 
+# TODO: Modifer le fichier temporaire de rotation pour garder en mémoire la rotation initial de l'image
+
 ROOT_PATH="$(pwd)"
 
 source "$ROOT_PATH/Param_func.sh"
@@ -22,7 +24,7 @@ clean_oversize
 
 while getopts ":r:uthp" OPT "$@"; do
     echo "\nFlag read: $OPT\n"
-
+    
     case $OPT in
         (":")
             echo "Wait, where is the directory to classify???"
@@ -62,7 +64,7 @@ while getopts ":r:uthp" OPT "$@"; do
             exit 1;;
 
         ("u")
-            echo "Undo process"
+            echo "${BOLD}${UNDERLINED}Undo previous process${NORMAL}\n"
             undo_process
             exit 1;;
 
