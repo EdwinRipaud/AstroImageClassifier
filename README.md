@@ -9,7 +9,7 @@
     you picture object 'Orion M42'.
  
 Your folder architecture tree need to be like this:
- 
+''' 
     Before classification        After classification
                   |
   Orion M42              |         Orion M42
@@ -35,7 +35,7 @@ Your folder architecture tree need to be like this:
                   |        |
                   |        |-> RAW
                   |        |    |-> Empty
- 
+ '''
 ##Option:
     -r : lunch the classification process. Add the path to the RAW images
     directory. You can add -Y to process directly the images.
@@ -49,9 +49,11 @@ Your folder architecture tree need to be like this:
     -h : show this help page.
  
 ##Exemples:
+'''
     sh AstroImageClissifier.sh -r Test -Y
-    --> Lunch direclty the classification of the images in the folder 'Test'
+    --> Lunch direclty the classification of the images in the folder \'Test\'
  
     sh AstroImageClissifier.sh -u
     --> Undo the last classification process, with -Y you can skip the
         confirmation
+'''
