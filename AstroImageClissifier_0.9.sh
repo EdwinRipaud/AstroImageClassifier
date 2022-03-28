@@ -28,7 +28,6 @@ clean_oversize
 
 
 while getopts ":r:uthp" OPT "$@"; do
-    echo "\nFlag read: $OPT\n"
     
     case $OPT in
         (":")

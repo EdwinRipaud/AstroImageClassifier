@@ -6,6 +6,7 @@
 #  Created by edwin ripaud on 19/03/2022.
 #
 
+# Global variable definition
 RED='\033[31m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
@@ -30,14 +31,15 @@ MAX_SIZE=20
 MAX_AGE=90
 SLEEP=0.05
 
-overwrite(){
+overwrite(){ # Function that will write the input text on the previous line of the termial, to create the overwrite effect
     sleep "$SLEEP"
     printf "\033[1A"  # move cursor one line up
     printf "\033[K"   # delete till end of line
     echo $1
 }
 
-load_param() {
+# --- PARAMETERS SECTION --- #
+load_param() { # Function that load parameters from the .config file and store the values in global variables
     start1=`gdate +%s.%3N`
     echo "Loading parameters..."
     OLDIFS=$IFS
@@ -96,7 +98,7 @@ load_param() {
     echo "${GREEN}Done${NORMAL}"
 }
 
-clean_oversize() {
+clean_oversize() { # Function to delete the .log file if it's to old or to big, with respect to the configuration parameters
     start1=`gdate +%s.%3N`
     log_weight=$(echo "scale=1; "$(ls -lrt "$LOG_PATH" | awk '{ total += $5 }; END { print total }')"/1024" | bc)
     
@@ -121,7 +123,7 @@ clean_oversize() {
     echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
-is_folder_name_valide() {
+is_folder_name_valide() { # Function to check if the new classification folder respect the number of required folder
     start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS="; "
@@ -147,11 +149,11 @@ is_folder_name_valide() {
     echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
-write_param() {
+write_param() { # Function that write the input parameter to the .config file
     sed -i '' "/^$1/s/\(.*\)$2/\1$3/" "$ROOT_PATH/src/parameters.config"
 }
 
-update_param() {
+update_param() { # Global function to walk through parameters
     start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS=$'\n'
@@ -306,8 +308,9 @@ update_param() {
     echo "=> Runtime: $runtime s" >> "$LOG_PATH"
 }
 
-IsPicture(){
-    # check if the 'RAW' directory exist
+
+# --- CLASSIFICATION SECTION --- #
+IsPicture(){ # Function to check if the 'RAW' directory, containing pictures, exist
     if [ ! -d "$BASE_PATH/RAW" ];
     then
         echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} There is no ${ITALIC}'RAW/'${NORMAL}${RED} directory inside the specified working directory.${NORMAL}"
@@ -317,7 +320,7 @@ IsPicture(){
     return 0
 }
 
-clean_tmp(){
+clean_tmp() { # Function to clean the temporary files used for the previous classification
     start1=`gdate +%s.%3N`
     # remove the old temporary files
     if [ -e "$ROOT_PATH/.tmp/temp_biases.txt" ];
@@ -365,15 +368,14 @@ clean_tmp(){
     echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
-make_dir() {
-    # Check if 'input' directory existe, otherwise create it
+make_dir() { # Function to check if 'input' directory existe, otherwise create it
     if [ ! -d "$BASE_PATH/$1" ];
     then
         mkdir "$BASE_PATH/$1"
     fi
 }
 
-rotation(){
+rotation() {
     start1=`gdate +%s.%3N`
     ###############
     # - Roation - #
@@ -382,6 +384,7 @@ rotation(){
     echo "Search non-horizontal (normal) image"
     prefix="$(echo "$BASE_PATH/RAW/" | sed 's_/_\\/_g')"
     phrase="\$orientation ne \"$ORIENTATION\""
+    
     exiftool -filename -orientation -if "$phrase" -r "$BASE_PATH/RAW" | grep -w -e "File Name" -e "Orientation"  | sed 's/.*: //' >> "$ROOT_PATH/.tmp/temp_rot_ori.txt"
     
     while read -r one; do
@@ -514,6 +517,7 @@ lights(){
     ##############
     # - Lights - #
     ##############
+    # move the lights
     echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_lights.txt") lights found.${NORMAL}"
     
     echo "Move lights files to the ${ITALIC}${BOLD}'lights/'${NORMAL} directory..."
@@ -538,6 +542,7 @@ darks(){
     #############
     # - Darks - #
     #############
+    # move the darks
     echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_darks.txt") darks found.${NORMAL}"
     
     echo "Move darks files to the ${ITALIC}${BOLD}'darks/'${NORMAL} directory..."
@@ -557,7 +562,7 @@ darks(){
     echo "${GREEN}done${NORMAL}"
 }
 
-run_process() {
+run_process() { # Global function that classify picture
     start=`gdate +%s.%3N`
     echo "Running process ..."
     echo "Function: run_process()" >> "$LOG_PATH"
@@ -598,7 +603,9 @@ run_process() {
     fi
 }
 
-undo_process() {
+
+# --- UNDO SECTION --- #
+undo_process() { # Function to undo the previous classification
     start1=`gdate +%s.%3N`
     echo $(pwd)
     
@@ -684,7 +691,9 @@ undo_process() {
     echo "${SOUND}"
 }
 
-temp_check() {
+
+# --- TEMPORARY FILE SECTION --- #
+temp_check() { # Function to look at the temporary files that exist
     start1=`gdate +%s.%3N`
     echo "Detailed size of temporary files:"
     tot="$(echo "scale=1; "$(ls -lrt "${ROOT_PATH}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
@@ -703,7 +712,7 @@ temp_check() {
     echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
-temp_clear() {
+temp_clear() { # Function that clear all temporary files
     start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     old_log="$(tail -n 11 "$LOG_PATH")"
@@ -723,7 +732,9 @@ temp_clear() {
     echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
-help_fnc() {
+
+# --- HELP SECTION --- #
+help_fnc() { # Function that display the content of the src/Help.txt file
     start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS=$'\n'
