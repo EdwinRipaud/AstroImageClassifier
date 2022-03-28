@@ -517,6 +517,7 @@ darks(){
 }
 
 run_process() {
+    start1=`gdate +%s.%3N`
     echo "Running process ..."
     nb_files=$(ls "$BASE_PATH/RAW" | wc -l | xargs)
     
@@ -542,6 +543,10 @@ run_process() {
             echo "${RED}Abort process${NORMAL}"
         fi
     fi
+    
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "$end1 - $start1" | bc -l )
+    echo "Process runtime: $runtime s"
     echo "${SOUND}"
 }
 
@@ -627,7 +632,8 @@ undo_process() {
     end1=`gdate +%s.%3N`
 
     runtime=$( echo "$end1 - $start1" | bc -l )
-    echo "$runtime s"
+    echo "Process runtime: $runtime s"
+    echo "${SOUND}"
 }
 
 temp_check() {
@@ -646,15 +652,16 @@ temp_check() {
 
 temp_clear() {
     OLDIFS=$IFS
+    old_log="$(tail -n $LOG_LENGTH "$ROOT_PATH/.tmp/AutoClassifier.log")"
     input="$ROOT_PATH/.tmp/temporary.txt"
     while IFS= read -r line
     do
         IFS=' ' read -r -a array <<< "$line"
         rm "$ROOT_PATH/.tmp/${array[8]}"
     done < "$input"
-    rm "$ROOT_PATH/.tmp/temporary.txt"
     echo "${SOUND}"
     IFS=$OLDIFS
+    echo "$old_log" >> "$ROOT_PATH/.tmp/AutoClassifier.log"
 }
 
 help_fnc() {

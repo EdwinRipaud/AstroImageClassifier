@@ -9,7 +9,7 @@
 # TODO: Penser à mettre 'Help.txt', 'parameters.config' et 'Param_func.sh' dans un dossier 'src'
 # TODO: une fois les fonctions fini d'écrire dans 'Param_func.sh', découper le fichier en plusieurs fichiers regroupant les fonctions en catégorie
 
-# TODO: Modifer le fichier temporaire de rotation pour garder en mémoire la rotation initial de l'image
+# TODO: enregistrer les log des actions effectuées
 
 ROOT_PATH="$(pwd)"
 
@@ -78,6 +78,9 @@ while getopts ":r:uthp" OPT "$@"; do
                 temp_clear
             else
                 echo "Clear temporary files abort"
+            fi
+            if [ -e "$ROOT_PATH/.tmp/temporary.txt" ]; then
+                rm "$ROOT_PATH/.tmp/temporary.txt"
             fi
             exit 1;;
 
