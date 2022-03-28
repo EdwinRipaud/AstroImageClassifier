@@ -20,8 +20,6 @@ BLINKING='\033[5m'
 REVERSE='\033[7m'
 SOUND='\007'
 
-LOG_LENGTH=25
-
 FOLDERS_NAMES=("Biases" "Darks" "Flats" "Lights")
 ORIENTATION_NAMES=("Horizontal (normal)" "Rotate 180" "Rotate 90 CW" "Rotate 270 CW")
 BIASE_EXP_TIME=4000
@@ -41,7 +39,7 @@ overwrite(){
 
 load_param() {
     start1=`gdate +%s.%3N`
-    echo "Loading parameters${BLINKING}...${NORMAL}"
+    echo "Loading parameters..."
     OLDIFS=$IFS
     IFS=$'\n'
     lines=$(cat "parameters.config")
@@ -110,17 +108,12 @@ clean_oversize() {
     oversize=$(echo "$log_weight > $MAX_SIZE" | bc -l)
     overage=$(echo "$log_date_diff >= $MAX_AGE" | bc -l)
     
-    old="$(tail -n $LOG_LENGTH "$LOG_PATH")"
+    old_log="$(tail -n 31 "$LOG_PATH")"
     
-    if [[ $oversize -eq 1 ]]; then
-        echo "Log clear: over maximum size."
+    if [[ $oversize -eq 1 || $overage -eq 1 ]]; then
+        echo "Clear .log: to old or to big"
         rm "$LOG_PATH"
-        echo "$old" >> "$LOG_PATH"
-    fi
-    if [[ $overage -eq 1 ]]; then
-        echo "Log clear: over maximum date."
-        rm "$LOG_PATH"
-        echo "$old" >> "$LOG_PATH"
+        echo "$old_log" >> "$LOG_PATH"
     fi
     echo "Function: clean_oversize()" >> "$LOG_PATH"
     end1=`gdate +%s.%3N`
@@ -713,7 +706,7 @@ temp_check() {
 temp_clear() {
     start1=`gdate +%s.%3N`
     OLDIFS=$IFS
-    old_log="$(tail -n 13 "$LOG_PATH")"
+    old_log="$(tail -n 11 "$LOG_PATH")"
     echo "$old_log"
     input="$ROOT_PATH/.tmp/temporary.txt"
     while IFS= read -r line

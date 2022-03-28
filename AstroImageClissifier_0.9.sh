@@ -14,7 +14,7 @@ ROOT_PATH="$(pwd)"
 
 source "$ROOT_PATH/Param_func.sh"
 
-BASE_PATH=$(tail -n $LOG_LENGTH "$ROOT_PATH/.tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
+BASE_PATH=$(tail -n 25 "$ROOT_PATH/.tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
 LOG_PATH="$ROOT_PATH/.tmp/AutoClassifier.log"
 TODAY="$(date +%s)"
 
