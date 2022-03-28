@@ -6,13 +6,12 @@
 #  Created by edwin ripaud on 19/03/2022.
 #  
 
-# TODO: Penser à mettre 'Help.txt', 'parameters.config' et 'Param_func.sh' dans un dossier 'src'
 # TODO: une fois les fonctions fini d'écrire dans 'Param_func.sh', découper le fichier en plusieurs fichiers regroupant les fonctions en catégorie
 
 
 ROOT_PATH="$(pwd)"
 
-source "$ROOT_PATH/Param_func.sh"
+source "$ROOT_PATH/src/functions.sh"
 
 BASE_PATH=$(tail -n 25 "$ROOT_PATH/.tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
 LOG_PATH="$ROOT_PATH/.tmp/AutoClassifier.log"

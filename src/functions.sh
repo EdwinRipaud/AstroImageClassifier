@@ -42,7 +42,7 @@ load_param() {
     echo "Loading parameters..."
     OLDIFS=$IFS
     IFS=$'\n'
-    lines=$(cat "parameters.config")
+    lines=$(cat "$ROOT_PATH/src/parameters.config")
     for line in $lines
     do
         if [[ $line == *"-"* ]]; then
@@ -148,14 +148,14 @@ is_folder_name_valide() {
 }
 
 write_param() {
-    sed -i '' "/^$1/s/\(.*\)$2/\1$3/" "$ROOT_PATH/parameters.config"
+    sed -i '' "/^$1/s/\(.*\)$2/\1$3/" "$ROOT_PATH/src/parameters.config"
 }
 
 update_param() {
     start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS=$'\n'
-    lines=$(cat "$ROOT_PATH/parameters.config")
+    lines=$(cat "$ROOT_PATH/src/parameters.config")
     for line in $lines
     do
         val=$(echo "$line" | grep -o ".- *")
@@ -174,7 +174,7 @@ update_param() {
         case "$arg" in
             ("1")
                 echo "\n${BOLD}${UNDERLINED}Folder name${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "1- F*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "1- F*")"
                 echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
                 echo "Enter the new names for the folders ${DIM}(need 4 arguments separate by \"; \")${NORMAL}:"
                 read newArg
@@ -190,7 +190,7 @@ update_param() {
                 ;;
             ("2")
                 echo "\n${BOLD}${UNDERLINED}Biases exposure time (in 1/X s)${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "2- B*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "2- B*")"
                 echo "Actual value: : ${BOLD}1/${actual#*: } s${NORMAL}"
                 echo "Enter the new exposure time:"
                 read newArg
@@ -205,7 +205,7 @@ update_param() {
                 ;;
             ("3")
                 echo "\n${BOLD}${UNDERLINED}Flats exposure value (in EV)${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "3- F*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "3- F*")"
                 echo "Actual value: : ${BOLD}${actual#*: } EV${NORMAL}"
                 echo "Enter the new exposure value:"
                 read newArg
@@ -220,7 +220,7 @@ update_param() {
                 ;;
             ("4")
                 echo "\n${BOLD}${UNDERLINED}File numeration difference${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "4- F*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "4- F*")"
                 echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
                 echo "Enter the new numeration difference:"
                 read newArg
@@ -236,7 +236,7 @@ update_param() {
             ("5")
                 echo "\n${BOLD}${UNDERLINED}Frame orientaion${NORMAL}"
                 echo "Posible orientation:\n\t(1) \"Horizontal (normal)\"\n\t(2) \"Rotate 180\"\n\t(3) \"Rotate 90 CW\"\n\t(4) \"Rotate 270 CW\"\n"
-                actual="$(echo "$(cat "parameters.config")" | grep "5- F*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "5- F*")"
                 echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
                 echo "Enter the number of the new orientation:"
                 read newArg
@@ -251,7 +251,7 @@ update_param() {
                 ;;
             ("6")
                 echo "\n${BOLD}${UNDERLINED}Max size (in ko)${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "6- M*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "6- M*")"
                 echo "Actual value: : ${BOLD}${actual#*: } ko${NORMAL}"
                 echo "Enter the new maximum size for temporary files:"
                 read newArg
@@ -266,7 +266,7 @@ update_param() {
                 ;;
             ("7")
                 echo "\n${BOLD}${UNDERLINED}Max age (in day)${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "7- A*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "7- A*")"
                 echo "Actual value: : ${BOLD}${actual#*: } days${NORMAL}"
                 echo "Enter the new maximum age for temporary files:"
                 read newArg
@@ -281,7 +281,7 @@ update_param() {
                 ;;
             ("9")
                 echo "\n${BOLD}${UNDERLINED}Overwrite screen time (in ms)${NORMAL}"
-                actual="$(echo "$(cat "parameters.config")" | grep "8- O*")"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "8- O*")"
                 echo "Actual value: : ${BOLD}${actual#*: } ms${NORMAL}"
                 echo "Enter the new screen time:"
                 read newArg
@@ -727,7 +727,7 @@ help_fnc() {
     start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS=$'\n'
-    lines=$(cat "$ROOT_PATH/Help.txt")
+    lines=$(cat "$ROOT_PATH/src/Help.txt")
     for line in $lines
     do
         echo "$line"
