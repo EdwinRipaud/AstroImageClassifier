@@ -6,8 +6,6 @@
 #  Created by edwin ripaud on 19/03/2022.
 #  
 
-# TODO: une fois les fonctions fini d'écrire dans 'Param_func.sh', découper le fichier en plusieurs fichiers regroupant les fonctions en catégorie
-
 
 ROOT_PATH="$(pwd)"
 
