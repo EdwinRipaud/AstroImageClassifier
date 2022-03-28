@@ -20,7 +20,7 @@ BLINKING='\033[5m'
 REVERSE='\033[7m'
 SOUND='\007'
 
-LOG_LENGTH=24
+LOG_LENGTH=25
 
 FOLDERS_NAMES=("Biases" "Darks" "Flats" "Lights")
 ORIENTATION_NAMES=("Horizontal (normal)" "Rotate 180" "Rotate 90 CW" "Rotate 270 CW")
@@ -40,6 +40,7 @@ overwrite(){
 }
 
 load_param() {
+    start1=`gdate +%s.%3N`
     echo "Loading parameters${BLINKING}...${NORMAL}"
     OLDIFS=$IFS
     IFS=$'\n'
@@ -90,13 +91,18 @@ load_param() {
         fi
     done
     IFS=$OLDIFS
+    echo "Function: load_param()" >> "$LOG_PATH"
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
     echo "${GREEN}Done${NORMAL}"
 }
 
 clean_oversize() {
-    log_weight=$(echo "scale=1; "$(ls -lrt "$ROOT_PATH/.tmp/AutoClassifier.log" | awk '{ total += $5 }; END { print total }')"/1024" | bc)
+    start1=`gdate +%s.%3N`
+    log_weight=$(echo "scale=1; "$(ls -lrt "$LOG_PATH" | awk '{ total += $5 }; END { print total }')"/1024" | bc)
     
-    log_date=$(stat -s "$ROOT_PATH/.tmp/AutoClassifier.log")
+    log_date=$(stat -s "$LOG_PATH")
     log_date="${log_date#*"st_mtime="}"
     log_date="${log_date%st_ctime*}"
     log_date_diff="$(echo "($TODAY - $log_date)/(3600*24)" | bc -l)"
@@ -104,21 +110,26 @@ clean_oversize() {
     oversize=$(echo "$log_weight > $MAX_SIZE" | bc -l)
     overage=$(echo "$log_date_diff >= $MAX_AGE" | bc -l)
     
-    old="$(tail -n $LOG_LENGTH "$ROOT_PATH/.tmp/AutoClassifier.log")"
+    old="$(tail -n $LOG_LENGTH "$LOG_PATH")"
     
     if [[ $oversize -eq 1 ]]; then
         echo "Log clear: over maximum size."
-        rm "$ROOT_PATH/.tmp/AutoClassifier.log"
-        echo "$old" >> "$ROOT_PATH/.tmp/AutoClassifier.log"
+        rm "$LOG_PATH"
+        echo "$old" >> "$LOG_PATH"
     fi
     if [[ $overage -eq 1 ]]; then
         echo "Log clear: over maximum date."
-        rm "$ROOT_PATH/.tmp/AutoClassifier.log"
-        echo "$old" >> "$ROOT_PATH/.tmp/AutoClassifier.log"
+        rm "$LOG_PATH"
+        echo "$old" >> "$LOG_PATH"
     fi
+    echo "Function: clean_oversize()" >> "$LOG_PATH"
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
 is_folder_name_valide() {
+    start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS="; "
     
@@ -137,6 +148,10 @@ is_folder_name_valide() {
     else
         return 0
     fi
+    echo "Function: is_folder_name_valide()" >> "$LOG_PATH"
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
 write_param() {
@@ -144,6 +159,7 @@ write_param() {
 }
 
 update_param() {
+    start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS=$'\n'
     lines=$(cat "$ROOT_PATH/parameters.config")
@@ -157,6 +173,7 @@ update_param() {
         fi
     done
     IFS=$OLDIFS
+    echo "Function: update_param()" >> "$LOG_PATH"
     echo "\nEnter the number of the parameter to change ${DIM}(\"n\" or \"q\" to exit)${NORMAL}:"
     read arg
     while [[ "$arg" != "n" && "$arg" != "q" ]];
@@ -291,7 +308,9 @@ update_param() {
         echo "\nEnter the number of the parameter to change ${DIM}(\"n\" or \"q\" to exit)${NORMAL}: "
         read arg
     done
-    
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "$end1 - $start1" | bc -l )
+    echo "=> Runtime: $runtime s" >> "$LOG_PATH"
 }
 
 IsPicture(){
@@ -306,6 +325,7 @@ IsPicture(){
 }
 
 clean_tmp(){
+    start1=`gdate +%s.%3N`
     # remove the old temporary files
     if [ -e "$ROOT_PATH/.tmp/temp_biases.txt" ];
     then
@@ -346,6 +366,10 @@ clean_tmp(){
     then
         rm "$ROOT_PATH/.tmp/temporary.txt"
     fi
+    echo "Function: clean_temp()" >> "$LOG_PATH"
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
 make_dir() {
@@ -357,6 +381,7 @@ make_dir() {
 }
 
 rotation(){
+    start1=`gdate +%s.%3N`
     ###############
     # - Roation - #
     ###############
@@ -377,11 +402,15 @@ rotation(){
     echo "Rotate images...${BLUE}"
 
     exiftool -@ "$ROOT_PATH/.tmp/temp_rotation.txt" -orientation="Horizontal (normal)" -overwrite_original_in_place
-
+    
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "\tFunction: rotation() -> runtime: $runtime ms" >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
 biases(){
+    start1=`gdate +%s.%3N`
     ##############
     # - Biases - #
     ##############
@@ -401,10 +430,14 @@ biases(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/biases/"
     done
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "\tFunction: biases() -> runtime: $runtime ms" >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
 flats(){
+    start1=`gdate +%s.%3N`
     #############
     # - Flats - #
     #############
@@ -425,10 +458,14 @@ flats(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/flats/"
     done
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "\tFunction: flats() -> runtime: $runtime ms" >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
 catch_darks_lights(){
+    start1=`gdate +%s.%3N`
     #####################
     # - darks & lights- #
     #####################
@@ -474,9 +511,13 @@ catch_darks_lights(){
     do
         echo "IMG_$i.CR3" >> "$ROOT_PATH/.tmp/temp_darks.txt"
     done
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "\tFunction: catch_darks_lights() -> runtime: $runtime ms" >> "$LOG_PATH"
 }
 
 lights(){
+    start1=`gdate +%s.%3N`
     ##############
     # - Lights - #
     ##############
@@ -493,10 +534,14 @@ lights(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/lights/"
     done
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "\tFunction: lights() -> runtime: $runtime ms" >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
 darks(){
+    start1=`gdate +%s.%3N`
     #############
     # - Darks - #
     #############
@@ -513,17 +558,22 @@ darks(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/darks/"
     done
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "\tFunction: darks() -> runtime: $runtime ms" >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
 run_process() {
-    start1=`gdate +%s.%3N`
+    start=`gdate +%s.%3N`
     echo "Running process ..."
+    echo "Function: run_process()" >> "$LOG_PATH"
     nb_files=$(ls "$BASE_PATH/RAW" | wc -l | xargs)
     
     if [ $nb_files == 0 ]; then
         echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} No files to process.${NORMAL}"
         help_fnc
+        printf '\n%.0s' {1..7} >> "$LOG_PATH"
     else
         echo "There are $nb_files images to process\n"
         echo "Do you want to run the script (Y/n):"
@@ -538,16 +588,21 @@ run_process() {
             catch_darks_lights  # Differentiate the darks and the lights
             darks               # Extract the darks
             lights              # Extract the lights
+            end=`gdate +%s.%3N`
+            runtime=$( echo "$end - $start" | bc -l )
+            echo "Process runtime: $runtime s"
+            echo "=> Runtime: $runtime s" >> "$LOG_PATH"
             echo "${SOUND}"
         else
             echo "${RED}Abort process${NORMAL}"
+            echo "Abort: run_process()" >> "$LOG_PATH"
+            end=`gdate +%s.%3N`
+            runtime=$( echo "$end - $start" | bc -l )
+            echo "Process runtime: $runtime s"
+            echo "=> Runtime: $runtime s" >> "$LOG_PATH"
+            printf '\n%.0s' {1..7} >> "$LOG_PATH"
         fi
     fi
-    
-    end1=`gdate +%s.%3N`
-    runtime=$( echo "$end1 - $start1" | bc -l )
-    echo "Process runtime: $runtime s"
-    echo "${SOUND}"
 }
 
 undo_process() {
@@ -628,15 +683,16 @@ undo_process() {
         done < "$ROOT_PATH/.tmp/temp_rotation_orientation.txt"
         echo "${GREEN}done${NORMAL}\n"
     fi
-    
+    echo "Function: undo_process()" >> "$LOG_PATH"
     end1=`gdate +%s.%3N`
-
     runtime=$( echo "$end1 - $start1" | bc -l )
     echo "Process runtime: $runtime s"
+    echo "=> Runtime: $runtime s" >> "$LOG_PATH"
     echo "${SOUND}"
 }
 
 temp_check() {
+    start1=`gdate +%s.%3N`
     echo "Detailed size of temporary files:"
     tot="$(echo "scale=1; "$(ls -lrt "${ROOT_PATH}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
     echo "${UNDERLINED}Total size:${NORMAL} $tot Ko"
@@ -648,11 +704,17 @@ temp_check() {
         IFS=' ' read -r -a array <<< "$line"
         echo "\t${array[4]} \t${BLUE}${array[8]}${NORMAL}"
     done < "$input"
+    echo "Function: temp_check()" >> "$LOG_PATH"
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
 temp_clear() {
+    start1=`gdate +%s.%3N`
     OLDIFS=$IFS
-    old_log="$(tail -n $LOG_LENGTH "$ROOT_PATH/.tmp/AutoClassifier.log")"
+    old_log="$(tail -n 13 "$LOG_PATH")"
+    echo "$old_log"
     input="$ROOT_PATH/.tmp/temporary.txt"
     while IFS= read -r line
     do
@@ -661,16 +723,25 @@ temp_clear() {
     done < "$input"
     echo "${SOUND}"
     IFS=$OLDIFS
-    echo "$old_log" >> "$ROOT_PATH/.tmp/AutoClassifier.log"
+    echo "$old_log" >> "$LOG_PATH"
+    echo "Function: temp_clear()" >> "$LOG_PATH"
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
 
 help_fnc() {
+    start1=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS=$'\n'
-    lines=$(cat "Help.txt")
+    lines=$(cat "$ROOT_PATH/Help.txt")
     for line in $lines
     do
         echo "$line"
     done
     IFS=$OLDIFS
+    echo "Function: help_fnc()" >> "$LOG_PATH"
+    end1=`gdate +%s.%3N`
+    runtime=$( echo "1000*($end1 - $start1)" | bc -l )
+    echo "=> Runtime: $runtime ms" >> "$LOG_PATH"
 }
