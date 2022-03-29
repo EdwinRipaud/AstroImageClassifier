@@ -387,17 +387,21 @@ rotation() {
     
     exiftool -filename -orientation -if "$phrase" -r "$BASE_PATH/RAW" | grep -w -e "File Name" -e "Orientation"  | sed 's/.*: //' >> "$TEMP_PATH/temp_rot_ori.txt"
     
-    while read -r one; do
-        read -r two
-        echo "$BASE_PATH/RAW/$one" >> "$TEMP_PATH/temp_rotation.txt"
-        echo "$BASE_PATH/RAW/$one; $two" >> "$TEMP_PATH/temp_rotation_orientation.txt"
-    done < "$TEMP_PATH/temp_rot_ori.txt"
-    rm "$TEMP_PATH/temp_rot_ori.txt"
-    
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_rotation.txt") bad rotation found.${NORMAL}"
-    echo "Rotate images...${BLUE}"
+    if [ -s "$TEMP_PATH/temp_rot_ori.txt" ]; then
+        while read -r one; do
+            read -r two
+            echo "$BASE_PATH/RAW/$one" >> "$TEMP_PATH/temp_rotation.txt"
+            echo "$BASE_PATH/RAW/$one; $two" >> "$TEMP_PATH/temp_rotation_orientation.txt"
+        done < "$TEMP_PATH/temp_rot_ori.txt"
+        
+        echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_rotation.txt") bad rotation found.${NORMAL}"
+        echo "Rotate images...${BLUE}"
 
-    exiftool -@ "$TEMP_PATH/temp_rotation.txt" -orientation="Horizontal (normal)" -overwrite_original_in_place
+        exiftool -@ "$TEMP_PATH/temp_rotation.txt" -orientation="$ORIENTATION" -overwrite_original_in_place
+    else
+        echo "${BLUE}No bad rotation found.${NORMAL}"
+    fi
+    rm "$TEMP_PATH/temp_rot_ori.txt"
     
     end1=`gdate +%s.%3N`
     runtime=$( echo "1000*($end1 - $start1)" | bc -l )
@@ -610,7 +614,7 @@ undo_process() { # Function to undo the previous classification
     echo $(pwd)
     
     # check if there is temporary files
-    if [[ ! -e "$TEMP_PATH/temp_biases.txt" || ! -e "$TEMP_PATH/temp_flats.txt" || ! -e "$TEMP_PATH/temp_darks.txt" || ! -e "$TEMP_PATH/temp_lights.txt" || ! -e "$TEMP_PATH/temp_rotation.txt" ]]; then
+    if [[ ! -e "$TEMP_PATH/temp_biases.txt" || ! -e "$TEMP_PATH/temp_flats.txt" || ! -e "$TEMP_PATH/temp_darks.txt" || ! -e "$TEMP_PATH/temp_lights.txt" ]]; then
         echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no temporary files${NORMAL}"
         echo "Impossible to undo, there is not all the temporary files..."
         Help
@@ -675,14 +679,14 @@ undo_process() { # Function to undo the previous classification
         echo "No file to move"
     fi
     
-    echo "\nrotate images..."
-    if [ -e "$TEMP_PATH/temp_rotation_orientation.txt" ];
-    then
+    if [[ -e "$TEMP_PATH/temp_rotation.txt" && -e "$TEMP_PATH/temp_rotation_orientation.txt" ]]; then
+        echo "\nrotate images..."
         while read -r line; do
             exiftool "${line%; *}" -orientation="${line#*; }" -overwrite_original_in_place > "/dev/null"
         done < "$TEMP_PATH/temp_rotation_orientation.txt"
         echo "${GREEN}done${NORMAL}\n"
     fi
+    
     echo "Function: undo_process()" >> "$LOG_PATH"
     end1=`gdate +%s.%3N`
     runtime=$( echo "$end1 - $start1" | bc -l )
