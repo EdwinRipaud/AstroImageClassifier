@@ -323,44 +323,44 @@ IsPicture(){ # Function to check if the 'RAW' directory, containing pictures, ex
 clean_tmp() { # Function to clean the temporary files used for the previous classification
     start1=`gdate +%s.%3N`
     # remove the old temporary files
-    if [ -e "$ROOT_PATH/.tmp/temp_biases.txt" ];
+    if [ -e "$TEMP_PATH/temp_biases.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temp_biases.txt"
+        rm "$TEMP_PATH/temp_biases.txt"
     fi
 
-    if [ -e "$ROOT_PATH/.tmp/temp_flats.txt" ];
+    if [ -e "$TEMP_PATH/temp_flats.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temp_flats.txt"
+        rm "$TEMP_PATH/temp_flats.txt"
     fi
 
-    if [ -e "$ROOT_PATH/.tmp/temp_darks.txt" ];
+    if [ -e "$TEMP_PATH/temp_darks.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temp_darks.txt"
+        rm "$TEMP_PATH/temp_darks.txt"
     fi
 
-    if [ -e "$ROOT_PATH/.tmp/temp_lights.txt" ];
+    if [ -e "$TEMP_PATH/temp_lights.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temp_lights.txt"
+        rm "$TEMP_PATH/temp_lights.txt"
     fi
 
-    if [ -e "$ROOT_PATH/.tmp/temp_rot.txt" ];
+    if [ -e "$TEMP_PATH/temp_rot.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temp_rot.txt"
+        rm "$TEMP_PATH/temp_rot.txt"
     fi
 
-    if [ -e "$ROOT_PATH/.tmp/temp_rotation.txt" ];
+    if [ -e "$TEMP_PATH/temp_rotation.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temp_rotation.txt"
+        rm "$TEMP_PATH/temp_rotation.txt"
     fi
 
-    if [ -e "$ROOT_PATH/.tmp/temp_rotation_orientation.txt" ];
+    if [ -e "$TEMP_PATH/temp_rotation_orientation.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temp_rotation_orientation.txt"
+        rm "$TEMP_PATH/temp_rotation_orientation.txt"
     fi
 
-    if [ -e "$ROOT_PATH/.tmp/temporary.txt" ];
+    if [ -e "$TEMP_PATH/temporary.txt" ];
     then
-        rm "$ROOT_PATH/.tmp/temporary.txt"
+        rm "$TEMP_PATH/temporary.txt"
     fi
     echo "Function: clean_temp()" >> "$LOG_PATH"
     end1=`gdate +%s.%3N`
@@ -385,19 +385,19 @@ rotation() {
     prefix="$(echo "$BASE_PATH/RAW/" | sed 's_/_\\/_g')"
     phrase="\$orientation ne \"$ORIENTATION\""
     
-    exiftool -filename -orientation -if "$phrase" -r "$BASE_PATH/RAW" | grep -w -e "File Name" -e "Orientation"  | sed 's/.*: //' >> "$ROOT_PATH/.tmp/temp_rot_ori.txt"
+    exiftool -filename -orientation -if "$phrase" -r "$BASE_PATH/RAW" | grep -w -e "File Name" -e "Orientation"  | sed 's/.*: //' >> "$TEMP_PATH/temp_rot_ori.txt"
     
     while read -r one; do
         read -r two
-        echo "$BASE_PATH/RAW/$one" >> "$ROOT_PATH/.tmp/temp_rotation.txt"
-        echo "$BASE_PATH/RAW/$one; $two" >> "$ROOT_PATH/.tmp/temp_rotation_orientation.txt"
-    done < "$ROOT_PATH/.tmp/temp_rot_ori.txt"
-    rm "$ROOT_PATH/.tmp/temp_rot_ori.txt"
+        echo "$BASE_PATH/RAW/$one" >> "$TEMP_PATH/temp_rotation.txt"
+        echo "$BASE_PATH/RAW/$one; $two" >> "$TEMP_PATH/temp_rotation_orientation.txt"
+    done < "$TEMP_PATH/temp_rot_ori.txt"
+    rm "$TEMP_PATH/temp_rot_ori.txt"
     
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_rotation.txt") bad rotation found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_rotation.txt") bad rotation found.${NORMAL}"
     echo "Rotate images...${BLUE}"
 
-    exiftool -@ "$ROOT_PATH/.tmp/temp_rotation.txt" -orientation="Horizontal (normal)" -overwrite_original_in_place
+    exiftool -@ "$TEMP_PATH/temp_rotation.txt" -orientation="Horizontal (normal)" -overwrite_original_in_place
     
     end1=`gdate +%s.%3N`
     runtime=$( echo "1000*($end1 - $start1)" | bc -l )
@@ -412,15 +412,15 @@ biases(){
     ##############
     # Catch and move the biases
     echo "\nSearch for the biases..."
-    exiftool -filename -if '$shutterspeed eq "1/8000"' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$ROOT_PATH/.tmp/temp_biases.txt"
+    exiftool -filename -if '$shutterspeed eq "1/8000"' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_biases.txt"
     
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_biases.txt") biases found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") biases found.${NORMAL}"
     
     echo "Move biases files to the ${ITALIC}${BOLD}'biases/'${NORMAL} directory...\n"
 
     make_dir "${FOLDERS_NAMES[0]}"
 
-    lines=$(cat "$ROOT_PATH/.tmp/temp_biases.txt")
+    lines=$(cat "$TEMP_PATH/temp_biases.txt")
     for line in $lines
     do
         overwrite "${line}..."
@@ -439,16 +439,16 @@ flats(){
     #############
     # Catch and move the flats
     echo "\nSearch for the flats..."
-    exiftool -filename -if '$MeasuredEV ge 10' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$ROOT_PATH/.tmp/temp_flats.txt"
+    exiftool -filename -if '$MeasuredEV ge 10' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_flats.txt"
 
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_flats.txt") flats found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") flats found.${NORMAL}"
     
     echo "Move flats files to the ${ITALIC}${BOLD}'flats/'${NORMAL} directory..."
     echo ""
 
     make_dir "${FOLDERS_NAMES[2]}"
 
-    lines=$(cat "$ROOT_PATH/.tmp/temp_flats.txt")
+    lines=$(cat "$TEMP_PATH/temp_flats.txt")
     for line in $lines
     do
         overwrite "${line}..."
@@ -490,7 +490,7 @@ catch_darks_lights(){
                 if [ $dif -gt 5 ]; then # if the difference is greater than the threshold, it's a discontinuity
                     for ((i=$PREV_NAME; i<$CHANGE_NAME+1; i++))
                     do
-                        echo "IMG_$i.CR3" >> "$ROOT_PATH/.tmp/temp_lights.txt"
+                        echo "IMG_$i.CR3" >> "$TEMP_PATH/temp_lights.txt"
                     done
                     PREV_NAME=${temp%.*}
                 fi
@@ -505,7 +505,7 @@ catch_darks_lights(){
     # Catch darks to move
     for ((i=$PREV_NAME; i<$CHANGE_NAME+1; i++))
     do
-        echo "IMG_$i.CR3" >> "$ROOT_PATH/.tmp/temp_darks.txt"
+        echo "IMG_$i.CR3" >> "$TEMP_PATH/temp_darks.txt"
     done
     end1=`gdate +%s.%3N`
     runtime=$( echo "1000*($end1 - $start1)" | bc -l )
@@ -518,14 +518,14 @@ lights(){
     # - Lights - #
     ##############
     # move the lights
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_lights.txt") lights found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") lights found.${NORMAL}"
     
     echo "Move lights files to the ${ITALIC}${BOLD}'lights/'${NORMAL} directory..."
     echo ""
 
     make_dir "${FOLDERS_NAMES[3]}"
 
-    lines=$(cat "$ROOT_PATH/.tmp/temp_lights.txt")
+    lines=$(cat "$TEMP_PATH/temp_lights.txt")
     for line in $lines
     do
         overwrite "${line}..."
@@ -543,14 +543,14 @@ darks(){
     # - Darks - #
     #############
     # move the darks
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_darks.txt") darks found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") darks found.${NORMAL}"
     
     echo "Move darks files to the ${ITALIC}${BOLD}'darks/'${NORMAL} directory..."
     echo ""
 
     make_dir "${FOLDERS_NAMES[1]}"
 
-    lines=$(cat "$ROOT_PATH/.tmp/temp_darks.txt")
+    lines=$(cat "$TEMP_PATH/temp_darks.txt")
     for line in $lines
     do
         overwrite "${line}..."
@@ -610,7 +610,7 @@ undo_process() { # Function to undo the previous classification
     echo $(pwd)
     
     # check if there is temporary files
-    if [[ ! -e "$ROOT_PATH/.tmp/temp_biases.txt" || ! -e "$ROOT_PATH/.tmp/temp_flats.txt" || ! -e "$ROOT_PATH/.tmp/temp_darks.txt" || ! -e "$ROOT_PATH/.tmp/temp_lights.txt" || ! -e "$ROOT_PATH/.tmp/temp_rotation.txt" ]]; then
+    if [[ ! -e "$TEMP_PATH/temp_biases.txt" || ! -e "$TEMP_PATH/temp_flats.txt" || ! -e "$TEMP_PATH/temp_darks.txt" || ! -e "$TEMP_PATH/temp_lights.txt" || ! -e "$TEMP_PATH/temp_rotation.txt" ]]; then
         echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no temporary files${NORMAL}"
         echo "Impossible to undo, there is not all the temporary files..."
         Help
@@ -620,9 +620,9 @@ undo_process() { # Function to undo the previous classification
     echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
     
     echo "\nmove biases..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_biases.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/biases")" ]; then
-        lines=$(cat "$ROOT_PATH/.tmp/temp_biases.txt")
+        lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
             overwrite "${line}..."
@@ -634,9 +634,9 @@ undo_process() { # Function to undo the previous classification
     fi
     
     echo "\nmove flats..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_flats.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/flats")" ]; then
-        lines=$(cat "$ROOT_PATH/.tmp/temp_flats.txt")
+        lines=$(cat "$TEMP_PATH/temp_flats.txt")
         for line in $lines
         do
             overwrite "${line}..."
@@ -648,9 +648,9 @@ undo_process() { # Function to undo the previous classification
     fi
 
     echo "\nmove darks..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_darks.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/darks")" ]; then
-        lines=$(cat "$ROOT_PATH/.tmp/temp_darks.txt")
+        lines=$(cat "$TEMP_PATH/temp_darks.txt")
         for line in $lines
         do
             overwrite "${line}..."
@@ -662,9 +662,9 @@ undo_process() { # Function to undo the previous classification
     fi
 
     echo "\nmove lights..."
-    echo "${BLUE}$(wc -l < "$ROOT_PATH/.tmp/temp_lights.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/lights")" ]; then
-        lines=$(cat "$ROOT_PATH/.tmp/temp_lights.txt")
+        lines=$(cat "$TEMP_PATH/temp_lights.txt")
         for line in $lines
         do
             overwrite "${line}..."
@@ -676,11 +676,11 @@ undo_process() { # Function to undo the previous classification
     fi
     
     echo "\nrotate images..."
-    if [ -e "$ROOT_PATH/.tmp/temp_rotation_orientation.txt" ];
+    if [ -e "$TEMP_PATH/temp_rotation_orientation.txt" ];
     then
         while read -r line; do
             exiftool "${line%; *}" -orientation="${line#*; }" -overwrite_original_in_place > "/dev/null"
-        done < "$ROOT_PATH/.tmp/temp_rotation_orientation.txt"
+        done < "$TEMP_PATH/temp_rotation_orientation.txt"
         echo "${GREEN}done${NORMAL}\n"
     fi
     echo "Function: undo_process()" >> "$LOG_PATH"
@@ -698,9 +698,9 @@ temp_check() { # Function to look at the temporary files that exist
     echo "Detailed size of temporary files:"
     tot="$(echo "scale=1; "$(ls -lrt "${ROOT_PATH}/.tmp/" | awk '{ total += $5 }; END { print total }')"/1024" | bc)"
     echo "${UNDERLINED}Total size:${NORMAL} $tot Ko"
-    echo "$(ls -lrth "${ROOT_PATH}/.tmp/")" >> "$ROOT_PATH/.tmp/temporary.txt"
-    echo "$(tail -n +2 "$ROOT_PATH/.tmp/temporary.txt")" > "$ROOT_PATH/.tmp/temporary.txt"
-    input="$ROOT_PATH/.tmp/temporary.txt"
+    echo "$(ls -lrth "${ROOT_PATH}/.tmp/")" >> "$TEMP_PATH/temporary.txt"
+    echo "$(tail -n +2 "$TEMP_PATH/temporary.txt")" > "$TEMP_PATH/temporary.txt"
+    input="$TEMP_PATH/temporary.txt"
     while IFS= read -r line
     do
         IFS=' ' read -r -a array <<< "$line"
@@ -717,11 +717,11 @@ temp_clear() { # Function that clear all temporary files
     OLDIFS=$IFS
     old_log="$(tail -n 11 "$LOG_PATH")"
     echo "$old_log"
-    input="$ROOT_PATH/.tmp/temporary.txt"
+    input="$TEMP_PATH/temporary.txt"
     while IFS= read -r line
     do
         IFS=' ' read -r -a array <<< "$line"
-        rm "$ROOT_PATH/.tmp/${array[8]}"
+        rm "$TEMP_PATH/${array[8]}"
     done < "$input"
     echo "${SOUND}"
     IFS=$OLDIFS

@@ -6,14 +6,24 @@
 #  Created by edwin ripaud on 19/03/2022.
 #  
 
-
 ROOT_PATH="$(pwd)"
 
 source "$ROOT_PATH/src/functions.sh"
 
-BASE_PATH=$(tail -n 25 "$ROOT_PATH/.tmp/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')
-LOG_PATH="$ROOT_PATH/.tmp/AutoClassifier.log"
+if [[ ! -d "$ROOT_PATH/.tmp" ]]; then
+    mkdir "$ROOT_PATH/.tmp"
+fi
+TEMP_PATH="$ROOT_PATH/.tmp"
+
+if [ -e "$TEMP_PATH/AutoClassifier.log" ]; then
+    BASE_PATH="$(tail -n 25 "$TEMP_PATH/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')"
+else
+    BASE_PATH="$ROOT_PATH"
+fi
+
+LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
+
 
 # output the basis log informations
 echo "Execution date: $(date)" >> "$LOG_PATH"
@@ -26,7 +36,7 @@ clean_oversize
 
 
 while getopts ":r:uthp" OPT "$@"; do
-    
+
     case $OPT in
         (":")
             echo "Wait, where is the directory to classify???"
@@ -36,7 +46,7 @@ while getopts ":r:uthp" OPT "$@"; do
                 echo "This is not a folder..."
                 read -p "Enter the folder to be filed: " OPTARG
             done
-            
+
             cd "$OPTARG"
             BASE_PATH="$(pwd)"
             echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
@@ -100,8 +110,8 @@ while getopts ":r:uthp" OPT "$@"; do
                 echo "Clear temporary files abort"
                 echo "Abort: temp_clear()\n" >> "$LOG_PATH"
             fi
-            if [ -e "$ROOT_PATH/.tmp/temporary.txt" ]; then
-                rm "$ROOT_PATH/.tmp/temporary.txt"
+            if [ -e "$TEMP_PATH/temporary.txt" ]; then
+                rm "$TEMP_PATH/temporary.txt"
             fi
             printf '\n%.0s' {1..10} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
