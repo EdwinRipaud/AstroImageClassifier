@@ -68,8 +68,8 @@ too much space.
  
 ## Exemples:
 
-`sh AstroImageClissifier.sh -r Test`: launch the classification on the images of
-the 'Test' folder
+`sh AstroImageClissifier.sh -r Orion 42`: launch the classification on the images of
+the 'Orion 42' folder
 
 `sh AstroImageClissifier.sh -u`: reversing the last classification process, the
 images will be placed back in the ***'RAW'*** folder as before the classification.
