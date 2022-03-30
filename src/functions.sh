@@ -155,6 +155,7 @@ write_param() { # Function that write the input parameter to the .config file
 
 update_param() { # Global function to walk through parameters
     start1=`gdate +%s.%3N`
+    echo "To set all parameters value to default, use ${BOLD}${ITALIC}'reset'${NORMAL}\n"
     OLDIFS=$IFS
     IFS=$'\n'
     lines=$(cat "$ROOT_PATH/src/parameters.config")
@@ -164,7 +165,7 @@ update_param() { # Global function to walk through parameters
         if [[ "$val" == "" ]]; then
             echo "${UNDERLINED}$line${NORMAL}"
         else
-            echo "\t${line% :*}"
+            echo "\t$(printf "%-35s" "${line% :*}"): ${line#*: }"
         fi
     done
     IFS=$OLDIFS
@@ -296,11 +297,17 @@ update_param() { # Global function to walk through parameters
                     echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
                 fi
                 ;;
+            ("reset")
+                echo "\n${BOLD}${UNDERLINED}Reset parameters${NORMAL}"
+                rm "$ROOT_PATH/src/parameters.config"
+                cp "$ROOT_PATH/src/.parameters.config" "$ROOT_PATH/src/parameters.config"
+                echo "${GREEN}done${NORMAL}"
+                ;;
             (*)
-                echo "\n${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} Wrong number${NORMAL}"
+                echo "\n${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} Wrong value, get: ${ITALIC}$arg${NORMAL}"
                 ;;
         esac
-        echo "\nEnter the number of the parameter to change ${DIM}(\"n\" or \"q\" to exit)${NORMAL}: "
+        echo "\nEnter the number of the parameter to change ${DIM}(\"n\" or \"q\" to exit)${NORMAL}:"
         read arg
     done
     end1=`gdate +%s.%3N`
