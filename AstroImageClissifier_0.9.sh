@@ -4,7 +4,8 @@
 #  
 #
 #  Created by edwin ripaud on 19/03/2022.
-#  
+#
+
 
 ROOT_PATH="$(pwd)"
 
@@ -24,6 +25,7 @@ fi
 LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
 
+
 # output the basis log informations
 echo "Execution date: $(date)" >> "$LOG_PATH"
 echo "Arguments : $1 $2" >> "$LOG_PATH"
@@ -32,7 +34,6 @@ echo "Root directory: $ROOT_PATH" >> "$LOG_PATH"
 
 load_param
 clean_oversize
-
 
 while getopts ":r:uthp" OPT "$@"; do
 
