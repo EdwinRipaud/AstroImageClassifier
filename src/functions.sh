@@ -43,15 +43,15 @@ log_time() { # calculates the time difference and returns the value in a string
     runtime=${runtime%.*}
     if [[ $runtime -lt 1000 ]]; then
         if [ ! -z "$1" ]; then
-            echo "$(printf "%-30s" "$1") => Runtime: $(printf "%10s" "$runtime ms")"
+            echo "$(printf "%-30s" "$1") => Runtime: $(printf "%10s" "$runtime") ms"
         else
-            echo "=> Runtime: $(printf "%10s" "$runtime ms")"
+            echo "=> Runtime: $(printf "%10s" "$runtime") ms"
         fi
     else
         if [ ! -z "$1" ]; then
-            echo "$(printf "%-30s" "$1") => Runtime: $(printf "%10s" "$(echo "scale=3; $runtime/1000" | bc -l) s")"
+            echo "$(printf "%-30s" "$1") => Runtime: $(printf "%10s" "$(echo "scale=3; $runtime/1000" | bc -l)") s"
         else
-            echo "=> Runtime: $(printf "%10s" "$(echo "scale=3; $runtime/1000" | bc -l) s")"
+            echo "=> Runtime: $(printf "%10s" "$(echo "scale=3; $runtime/1000" | bc -l)") s"
         fi
     fi
 }
@@ -423,8 +423,14 @@ rotation() {
     fi
     rm "$TEMP_PATH/temp_rot_ori.txt"
     
+    nb_files=$(< "$TEMP_PATH/temp_rotation.txt" wc -l)
+    if [ -z "$nb_files" ]; then
+        nb_files="0"
+    else
+        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    fi
     end_r=`gdate +%s.%3N`
-    log_time "- rotation()" $start_r $end_r >> "$LOG_PATH"
+    log_time "$(printf "%-15s" "- rotation()") ($nb_files)" $start_r $end_r >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
@@ -449,8 +455,15 @@ biases(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/biases/"
     done
+    
+    nb_files=$(< "$TEMP_PATH/temp_biases.txt" wc -l)
+    if [ -z "$nb_files" ]; then
+        nb_files="0"
+    else
+        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    fi
     end_b=`gdate +%s.%3N`
-    log_time "- biases()" $start_b $end_b >> "$LOG_PATH"
+    log_time "$(printf "%-15s" "- biases()") ($nb_files)" $start_b $end_b >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
@@ -476,8 +489,15 @@ flats(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/flats/"
     done
+    
+    nb_files=$(< "$TEMP_PATH/temp_flats.txt" wc -l)
+    if [ -z "$nb_files" ]; then
+        nb_files="0"
+    else
+        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    fi
     end_f=`gdate +%s.%3N`
-    log_time "- flats()" $start_f $end_f >> "$LOG_PATH"
+    log_time "$(printf "%-15s" "- flats()") ($nb_files)" $start_f $end_f >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
@@ -551,8 +571,15 @@ lights(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/lights/"
     done
+    
+    nb_files=$(< "$TEMP_PATH/temp_lights.txt" wc -l)
+    if [ -z "$nb_files" ]; then
+        nb_files="0"
+    else
+        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    fi
     end_l=`gdate +%s.%3N`
-    log_time "- lights()" $start_l $end_l >> "$LOG_PATH"
+    log_time "$(printf "%-15s" "- lights()") ($nb_files)" $start_l $end_l >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
@@ -575,15 +602,22 @@ darks(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/darks/"
     done
+        
+    nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
+    if [ -z "$nb_files" ]; then
+        nb_files="0"
+    else
+        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    fi
     end_d=`gdate +%s.%3N`
-    log_time "- darks()" $start_d $end_d >> "$LOG_PATH"
+    log_time "$(printf "%-15s" "- darks()") ($nb_files)" $start_d $end_d >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
 }
 
 run_process() { # Global function that classify picture
     echo "Running process ..."
-    echo "Function: run_process()" >> "$LOG_PATH"
     nb_files=$(ls "$BASE_PATH/RAW" | wc -l | xargs)
+    echo "$(printf "%-30s" "Function: run_process()") -> process: $(printf "%10s" "$nb_files") files" >> "$LOG_PATH"
     
     if [ $nb_files == 0 ]; then
         echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} No files to process.${NORMAL}"

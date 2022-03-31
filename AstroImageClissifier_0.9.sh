@@ -6,7 +6,6 @@
 #  Created by edwin ripaud on 19/03/2022.
 #
 
-
 ROOT_PATH="$(pwd)"
 
 source "$ROOT_PATH/src/functions.sh"
