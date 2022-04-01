@@ -3,6 +3,12 @@
  
 \033[33m\033[1m\033[4mThis is the Help page\033[m
  
+This utility was created by a curious beginner to help astrophotographers to
+classify their photos before processing.
+There are some security measures in the code to limit the risk of breakage in
+case of misuse or problems in classification. However, any user will be
+responsible for any damage or loss of photos in the process.
+ 
 \033[1m\033[4mDescription:\033[m
 	This utility command script help you to classify your RAW images, out
 	of your APN SD card, into 4 folders: Biases, Darks, Flats and Lights.
@@ -53,11 +59,19 @@ Your folder architecture tree need to be like this:
     -h : show this help page.
  
 \033[1m\033[4mExemples:\033[m
-    sh AstroImageClissifier.sh -r Test
-	\033[1m-->\033[m Lunch direclty the classification of the images in the folder 'Test'
+    sh AstroImageClissifier.sh -r Orion 42
+	\033[1m-->\033[m launch the classification on the images of the 'Orion 42' folder
  
     sh AstroImageClissifier.sh -u
-	\033[1m-->\033[m Undo the last classification process, with -Y you can skip the
-	    confirmation
+	\033[1m-->\033[m reversing the last classification process, the images will be
+	placed back in the \033[1m\033[3m'RAW'\033[m folder as before the classification.
+ 
+    sh AstroImageClissifier.sh -p
+	\033[1m-->\033[m allows to check/change parameters such as: folder names,
+	classification characteristics, image orientation, etc.
+ 
+    sh AstroImageClissifier.sh -t
+	\033[1m-->\033[m allows you to access the details of hidden files, created during
+	and for execution.
  
 ................................................................................
