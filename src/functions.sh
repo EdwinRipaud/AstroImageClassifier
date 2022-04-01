@@ -427,7 +427,7 @@ rotation() {
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_rotation.txt" ]; then
-        nb_files=$(< "$TEMP_PATH/temp_rotation.txt" wc -l)
+        nb_files=$(wc -l < "$TEMP_PATH/temp_rotation.txt" | sed 's/ //g')
     fi
     IFS=$OLDIFS
     end_r=`gdate +%s.%3N`
@@ -461,7 +461,7 @@ biases(){
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_biases.txt" ]; then
-        nb_files=$(< "$TEMP_PATH/temp_biases.txt" wc -l)
+        nb_files=$(wc -l < "$TEMP_PATH/temp_biases.txt" | sed 's/ //g')
     fi
     IFS=$OLDIFS
     end_b=`gdate +%s.%3N`
@@ -496,7 +496,7 @@ flats(){
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_flats.txt" ]; then
-        nb_files=$(< "$TEMP_PATH/temp_flats.txt" wc -l)
+        nb_files=$(wc -l < "$TEMP_PATH/temp_flats.txt" | sed 's/ //g')
     fi
     IFS=$OLDIFS
     end_f=`gdate +%s.%3N`
@@ -581,7 +581,7 @@ lights(){
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_lights.txt" ]; then
-        nb_files=$(< "$TEMP_PATH/temp_lights.txt" wc -l)
+        nb_files=$(wc -l < "$TEMP_PATH/temp_lights.txt" | sed 's/ //g')
     fi
     IFS=$OLDIFS
     end_l=`gdate +%s.%3N`
@@ -613,7 +613,7 @@ darks(){
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_darks.txt" ]; then
-        nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
+        nb_files=$(wc -l < "$TEMP_PATH/temp_darks.txt" | sed 's/ //g')
     fi
     IFS=$OLDIFS
     end_d=`gdate +%s.%3N`
@@ -772,7 +772,7 @@ temp_check() { # Function to look at the temporary files that exist
     while IFS= read -r line
     do
         IFS=' ' read -r -a array <<< "$line"
-        echo "\t${array[4]} \t${BLUE}${array[8]}${NORMAL}"
+        echo "$(printf "%-25s" "\t- ${array[8]}") ${array[4]}"
     done < "$input"
 #    echo "Function: temp_check()" >> "$LOG_PATH"
     end_tc=`gdate +%s.%3N`
@@ -783,7 +783,6 @@ temp_clear() { # Function that clear all temporary files
     start_tcl=`gdate +%s.%3N`
     OLDIFS=$IFS
     old_log="$(tail -n 11 "$LOG_PATH")"
-    echo "$old_log"
     input="$TEMP_PATH/temporary.txt"
     while IFS= read -r line
     do
