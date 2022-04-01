@@ -397,6 +397,8 @@ make_dir() { # Function to check if 'input' directory existe, otherwise create i
 
 rotation() {
     start_r=`gdate +%s.%3N`
+    OLDIFS=$IFS
+    IFS=$'\n'
     ###############
     # - Roation - #
     ###############
@@ -427,13 +429,7 @@ rotation() {
     if [ -e "$TEMP_PATH/temp_rotation.txt" ]; then
         nb_files=$(< "$TEMP_PATH/temp_rotation.txt" wc -l)
     fi
-    
-#    nb_files=$(< "$TEMP_PATH/temp_rotation.txt" wc -l)
-#    if [ -z "$nb_files" ]; then
-#        nb_files="0"
-#    else
-#        nb_files=$(echo "$nb_files" | sed 's/ //g')
-#    fi
+    IFS=$OLDIFS
     end_r=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- rotation()") ($nb_files)" $start_r $end_r >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -441,6 +437,8 @@ rotation() {
 
 biases(){
     start_b=`gdate +%s.%3N`
+    OLDIFS=$IFS
+    IFS=$'\n'
     ##############
     # - Biases - #
     ##############
@@ -458,19 +456,14 @@ biases(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/biases/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/biases/"
     done
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_biases.txt" ]; then
         nb_files=$(< "$TEMP_PATH/temp_biases.txt" wc -l)
     fi
-#    nb_files=$(< "$TEMP_PATH/temp_biases.txt" wc -l)
-#    if [ -z "$nb_files" ]; then
-#        nb_files="0"
-#    else
-#        nb_files=$(echo "$nb_files" | sed 's/ //g')
-#    fi
+    IFS=$OLDIFS
     end_b=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- biases()") ($nb_files)" $start_b $end_b >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -478,6 +471,8 @@ biases(){
 
 flats(){
     start_f=`gdate +%s.%3N`
+    OLDIFS=$IFS
+    IFS=$'\n'
     #############
     # - Flats - #
     #############
@@ -496,19 +491,14 @@ flats(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/flats/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/flats/"
     done
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_flats.txt" ]; then
         nb_files=$(< "$TEMP_PATH/temp_flats.txt" wc -l)
     fi
-#    nb_files=$(< "$TEMP_PATH/temp_flats.txt" wc -l)
-#    if [ -z "$nb_files" ]; then
-#        nb_files="0"
-#    else
-#        nb_files=$(echo "$nb_files" | sed 's/ //g')
-#    fi
+    IFS=$OLDIFS
     end_f=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- flats()") ($nb_files)" $start_f $end_f >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -531,35 +521,37 @@ catch_darks_lights(){
     FIND=false
     PREV_NAME=0 # store the name of the image before the last discontinuity
     CHANGE_NAME=0 # the counter for the loop
-    for FILE in "$BASE_PATH/RAW"/*; do # scann for all the files in the "RAW" directoy
+    index=0
+    count=0
+    for FILE_NAME in "$BASE_PATH/RAW"/*; do # scann for all the files in the "RAW" directoy
+        FILE_NAME=${FILE_NAME##*/}
+        NAME_array[count]="$FILE_NAME"
+        count=$((count+1))
+        FILE=${FILE_NAME%.*}
         if ! $FIND; then
             if $TEST; then # check if it's the first file
                 TEST=false # turn the boolean to 'false'
-                temp=${FILE#*_}
-                PREV_NAME=${temp%.*}
-                CHANGE_NAME=PREV_NAME
+                CHANGE_NAME=${FILE//[^0-9]/}
             else
-                temp=${FILE#*_}
-                dif=$((${temp%.*}-$CHANGE_NAME)) # calculate the difference between the numerotation of the previous and the current image
-                if [ $dif -gt 5 ]; then # if the difference is greater than the threshold, it's a discontinuity
-                    for ((i=$PREV_NAME; i<$CHANGE_NAME+1; i++))
+                num=${FILE//[^0-9]/}
+                diff=$(echo "$num-$CHANGE_NAME" | bc -l) # calculate the difference between the numerotation of the previous and the current image
+                if [[ $diff -gt $FILE_NUM_DIFF ]]; then # if the difference is greater than the threshold, it's a discontinuity
+                    index=$count
+                    for ((i=0; i<$index-1; i++))
                     do
-                        echo "IMG_$i.CR3" >> "$TEMP_PATH/temp_lights.txt"
+                        echo "${NAME_array[i]}" >> "$TEMP_PATH/temp_lights.txt"
                     done
-                    PREV_NAME=${temp%.*}
+                    FIND=true
                 fi
-                CHANGE_NAME=${temp%.*}
+                CHANGE_NAME=$num
             fi
-        else
-            temp=${FILE#*_}
-            CHANGE_NAME=${temp%.*}
         fi
     done
         
     # Catch darks to move
-    for ((i=$PREV_NAME; i<$CHANGE_NAME+1; i++))
+    for ((i=$index-1; i<$count; i++))
     do
-        echo "IMG_$i.CR3" >> "$TEMP_PATH/temp_darks.txt"
+        echo "${NAME_array[i]}" >> "$TEMP_PATH/temp_darks.txt"
     done
     end_cdl=`gdate +%s.%3N`
     log_time "- catch_darks_lights()" $start_cdl $end_cdl >> "$LOG_PATH"
@@ -567,6 +559,8 @@ catch_darks_lights(){
 
 lights(){
     start_l=`gdate +%s.%3N`
+    OLDIFS=$IFS
+    IFS=$'\n'
     ##############
     # - Lights - #
     ##############
@@ -582,19 +576,14 @@ lights(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/lights/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/lights/"
     done
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_lights.txt" ]; then
         nb_files=$(< "$TEMP_PATH/temp_lights.txt" wc -l)
     fi
-#    nb_files=$(< "$TEMP_PATH/temp_lights.txt" wc -l)
-#    if [ -z "$nb_files" ]; then
-#        nb_files="0"
-#    else
-#        nb_files=$(echo "$nb_files" | sed 's/ //g')
-#    fi
+    IFS=$OLDIFS
     end_l=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- lights()") ($nb_files)" $start_l $end_l >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -602,6 +591,8 @@ lights(){
 
 darks(){
     start_d=`gdate +%s.%3N`
+    OLDIFS=$IFS
+    IFS=$'\n'
     #############
     # - Darks - #
     #############
@@ -617,19 +608,14 @@ darks(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/darks/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/darks/"
     done
     
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_darks.txt" ]; then
         nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
     fi
-#    nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
-#    if [ -z "$nb_files" ]; then
-#        nb_files="0"
-#    else
-#        nb_files=$(echo "$nb_files" | sed 's/ //g')
-#    fi
+    IFS=$OLDIFS
     end_d=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- darks()") ($nb_files)" $start_d $end_d >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -677,15 +663,9 @@ run_process() { # Global function that classify picture
 # --- UNDO SECTION --- #
 undo_process() { # Function to undo the previous classification
     start_upr=`gdate +%s.%3N`
+    OLDIFS=$IFS
+    IFS=$'\n'
     echo $(pwd)
-    
-#    # check if there is temporary files
-#    if [[ ! -e "$TEMP_PATH/temp_biases.txt" || ! -e "$TEMP_PATH/temp_flats.txt" || ! -e "$TEMP_PATH/temp_darks.txt" || ! -e "$TEMP_PATH/temp_lights.txt" ]]; then
-#        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no temporary files${NORMAL}"
-#        echo "Impossible to undo, there is not all the temporary files..."
-#        Help
-#        exit 1
-#    fi
     
     nb_files_b=0
     nb_files_f=0
@@ -764,6 +744,7 @@ undo_process() { # Function to undo the previous classification
         done < "$TEMP_PATH/temp_rotation_orientation.txt"
         echo "${GREEN}done${NORMAL}\n"
     fi
+    IFS=$OLDIFS
     
     nb_files_tot=$((nb_files_b+nb_files_f+nb_files_d+nb_files_l))
     end_upr=`gdate +%s.%3N`
