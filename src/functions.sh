@@ -423,12 +423,17 @@ rotation() {
     fi
     rm "$TEMP_PATH/temp_rot_ori.txt"
     
-    nb_files=$(< "$TEMP_PATH/temp_rotation.txt" wc -l)
-    if [ -z "$nb_files" ]; then
-        nb_files="0"
-    else
-        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    nb_files="0"
+    if [ -e "$TEMP_PATH/temp_rotation.txt" ]; then
+        nb_files=$(< "$TEMP_PATH/temp_rotation.txt" wc -l)
     fi
+    
+#    nb_files=$(< "$TEMP_PATH/temp_rotation.txt" wc -l)
+#    if [ -z "$nb_files" ]; then
+#        nb_files="0"
+#    else
+#        nb_files=$(echo "$nb_files" | sed 's/ //g')
+#    fi
     end_r=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- rotation()") ($nb_files)" $start_r $end_r >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -456,12 +461,16 @@ biases(){
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/biases/"
     done
     
-    nb_files=$(< "$TEMP_PATH/temp_biases.txt" wc -l)
-    if [ -z "$nb_files" ]; then
-        nb_files="0"
-    else
-        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    nb_files="0"
+    if [ -e "$TEMP_PATH/temp_biases.txt" ]; then
+        nb_files=$(< "$TEMP_PATH/temp_biases.txt" wc -l)
     fi
+#    nb_files=$(< "$TEMP_PATH/temp_biases.txt" wc -l)
+#    if [ -z "$nb_files" ]; then
+#        nb_files="0"
+#    else
+#        nb_files=$(echo "$nb_files" | sed 's/ //g')
+#    fi
     end_b=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- biases()") ($nb_files)" $start_b $end_b >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -490,12 +499,16 @@ flats(){
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/flats/"
     done
     
-    nb_files=$(< "$TEMP_PATH/temp_flats.txt" wc -l)
-    if [ -z "$nb_files" ]; then
-        nb_files="0"
-    else
-        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    nb_files="0"
+    if [ -e "$TEMP_PATH/temp_flats.txt" ]; then
+        nb_files=$(< "$TEMP_PATH/temp_flats.txt" wc -l)
     fi
+#    nb_files=$(< "$TEMP_PATH/temp_flats.txt" wc -l)
+#    if [ -z "$nb_files" ]; then
+#        nb_files="0"
+#    else
+#        nb_files=$(echo "$nb_files" | sed 's/ //g')
+#    fi
     end_f=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- flats()") ($nb_files)" $start_f $end_f >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -572,12 +585,16 @@ lights(){
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/lights/"
     done
     
-    nb_files=$(< "$TEMP_PATH/temp_lights.txt" wc -l)
-    if [ -z "$nb_files" ]; then
-        nb_files="0"
-    else
-        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    nb_files="0"
+    if [ -e "$TEMP_PATH/temp_lights.txt" ]; then
+        nb_files=$(< "$TEMP_PATH/temp_lights.txt" wc -l)
     fi
+#    nb_files=$(< "$TEMP_PATH/temp_lights.txt" wc -l)
+#    if [ -z "$nb_files" ]; then
+#        nb_files="0"
+#    else
+#        nb_files=$(echo "$nb_files" | sed 's/ //g')
+#    fi
     end_l=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- lights()") ($nb_files)" $start_l $end_l >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -603,12 +620,16 @@ darks(){
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/darks/"
     done
     
-    nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
-    if [ -z "$nb_files" ]; then
-        nb_files="0"
-    else
-        nb_files=$(echo "$nb_files" | sed 's/ //g')
+    nb_files="0"
+    if [ -e "$TEMP_PATH/temp_darks.txt" ]; then
+        nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
     fi
+#    nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
+#    if [ -z "$nb_files" ]; then
+#        nb_files="0"
+#    else
+#        nb_files=$(echo "$nb_files" | sed 's/ //g')
+#    fi
     end_d=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- darks()") ($nb_files)" $start_d $end_d >> "$LOG_PATH"
     echo "${GREEN}done${NORMAL}"
@@ -658,18 +679,13 @@ undo_process() { # Function to undo the previous classification
     start_upr=`gdate +%s.%3N`
     echo $(pwd)
     
-    # check if there is temporary files
-    if [[ ! -e "$TEMP_PATH/temp_biases.txt" || ! -e "$TEMP_PATH/temp_flats.txt" || ! -e "$TEMP_PATH/temp_darks.txt" || ! -e "$TEMP_PATH/temp_lights.txt" ]]; then
-        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no temporary files${NORMAL}"
-        echo "Impossible to undo, there is not all the temporary files..."
-        Help
-        exit 1
-    fi
-    
-    echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
-    
-    echo "\nmove biases..."
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
+#    # check if there is temporary files
+#    if [[ ! -e "$TEMP_PATH/temp_biases.txt" || ! -e "$TEMP_PATH/temp_flats.txt" || ! -e "$TEMP_PATH/temp_darks.txt" || ! -e "$TEMP_PATH/temp_lights.txt" ]]; then
+#        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no temporary files${NORMAL}"
+#        echo "Impossible to undo, there is not all the temporary files..."
+#        Help
+#        exit 1
+#    fi
     
     nb_files_b=0
     nb_files_f=0
@@ -678,7 +694,11 @@ undo_process() { # Function to undo the previous classification
     nb_files_r=0
     nb_files_tot=0
     
-    if [ ! -z "$(ls -A "$BASE_PATH/biases")" ]; then
+    echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
+    
+    echo "\nmove biases..."
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
+    if [[ ! -z "$(ls -A "$BASE_PATH/biases")" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
@@ -693,7 +713,7 @@ undo_process() { # Function to undo the previous classification
     
     echo "\nmove flats..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") images${NORMAL}\n"
-    if [ ! -z "$(ls -A "$BASE_PATH/flats")" ]; then
+    if [[ ! -z "$(ls -A "$BASE_PATH/flats")" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_flats.txt")
         for line in $lines
         do
@@ -708,7 +728,7 @@ undo_process() { # Function to undo the previous classification
     
     echo "\nmove darks..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}\n"
-    if [ ! -z "$(ls -A "$BASE_PATH/darks")" ]; then
+    if [[ ! -z "$(ls -A "$BASE_PATH/darks")" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_darks.txt")
         for line in $lines
         do
@@ -723,7 +743,7 @@ undo_process() { # Function to undo the previous classification
 
     echo "\nmove lights..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") images${NORMAL}\n"
-    if [ ! -z "$(ls -A "$BASE_PATH/lights")" ]; then
+    if [[ ! -z "$(ls -A "$BASE_PATH/lights")" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_lights.txt")
         for line in $lines
         do
