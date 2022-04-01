@@ -53,7 +53,7 @@ Your folder architecture tree need to be like this:
     -h : show this help page.
  
 \033[1m\033[4mExemples:\033[m
-    sh AstroImageClissifier.sh -r Test -Y
+    sh AstroImageClissifier.sh -r Test
 	\033[1m-->\033[m Lunch direclty the classification of the images in the folder 'Test'
  
     sh AstroImageClissifier.sh -u

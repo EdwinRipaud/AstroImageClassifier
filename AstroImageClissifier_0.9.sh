@@ -92,7 +92,7 @@ while getopts ":r:uthp" OPT "$@"; do
                 echo "abort undo"
                 echo "Abort: undo_process()\n" >> "$LOG_PATH"
             fi
-            printf '\n%.0s' {1..12} >> "$LOG_PATH"
+            printf '\n%.0s' {1..6} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 

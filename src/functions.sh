@@ -602,7 +602,7 @@ darks(){
         overwrite "${line}..."
         mv "$BASE_PATH/RAW"/${line} "$BASE_PATH/darks/"
     done
-        
+    
     nb_files=$(< "$TEMP_PATH/temp_darks.txt" wc -l)
     if [ -z "$nb_files" ]; then
         nb_files="0"
@@ -639,7 +639,7 @@ run_process() { # Global function that classify picture
             lights              # Extract the lights
             end_rp=`gdate +%s.%3N`
             echo "$(log_time "" $start_rp $end_rp)"
-            log_time "Function: run_process()" $start_rp $end_rp >> "$LOG_PATH"
+            log_time "run_process()" $start_rp $end_rp >> "$LOG_PATH"
             echo "${SOUND}"
         else
             echo "${RED}Abort process${NORMAL}"
@@ -670,12 +670,21 @@ undo_process() { # Function to undo the previous classification
     
     echo "\nmove biases..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
+    
+    nb_files_b=0
+    nb_files_f=0
+    nb_files_d=0
+    nb_files_l=0
+    nb_files_r=0
+    nb_files_tot=0
+    
     if [ ! -z "$(ls -A "$BASE_PATH/biases")" ]; then
         lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
             overwrite "${line}..."
             mv "$BASE_PATH/biases"/${line} "$BASE_PATH/RAW/"
+            nb_files_b=$((nb_files_b+1))
         done
         echo "${GREEN}done${NORMAL}"
     else
@@ -690,12 +699,13 @@ undo_process() { # Function to undo the previous classification
         do
             overwrite "${line}..."
             mv "$BASE_PATH/flats"/${line} "$BASE_PATH/RAW/"
+            nb_files_f=$((nb_files_f+1))
         done
         echo "${GREEN}done${NORMAL}"
     else
         echo "No file to move"
     fi
-
+    
     echo "\nmove darks..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}\n"
     if [ ! -z "$(ls -A "$BASE_PATH/darks")" ]; then
@@ -704,6 +714,7 @@ undo_process() { # Function to undo the previous classification
         do
             overwrite "${line}..."
             mv "$BASE_PATH/darks"/${line} "$BASE_PATH/RAW/"
+            nb_files_d=$((nb_files_d+1))
         done
         echo "${GREEN}done${NORMAL}"
     else
@@ -718,23 +729,31 @@ undo_process() { # Function to undo the previous classification
         do
             overwrite "${line}..."
             mv "$BASE_PATH/lights"/${line} "$BASE_PATH/RAW/"
+            nb_files_l=$((nb_files_l+1))
         done
         echo "${GREEN}done${NORMAL}"
     else
         echo "No file to move"
     fi
-    
+
     if [[ -e "$TEMP_PATH/temp_rotation.txt" && -e "$TEMP_PATH/temp_rotation_orientation.txt" ]]; then
         echo "\nrotate images..."
         while read -r line; do
             exiftool "${line%; *}" -orientation="${line#*; }" -overwrite_original_in_place > "/dev/null"
+            nb_files_r=$((nb_files_r+1))
         done < "$TEMP_PATH/temp_rotation_orientation.txt"
         echo "${GREEN}done${NORMAL}\n"
     fi
     
-#    echo "Function: undo_process()" >> "$LOG_PATH"
+    nb_files_tot=$((nb_files_b+nb_files_f+nb_files_d+nb_files_l))
     end_upr=`gdate +%s.%3N`
     echo "$(log_time "" $start_upr $end_upr)"
+    echo "$(printf "%-30s" "Function: undo_process()") -> process: $(printf "%10s" "$nb_files_tot") files" >> "$LOG_PATH"
+    echo "$(printf "%-15s" "- biases") ($nb_files_b)" >> "$LOG_PATH"
+    echo "$(printf "%-15s" "- flats") ($nb_files_f)" >> "$LOG_PATH"
+    echo "$(printf "%-15s" "- darks") ($nb_files_d)" >> "$LOG_PATH"
+    echo "$(printf "%-15s" "- lights") ($nb_files_l)" >> "$LOG_PATH"
+    echo "$(printf "%-15s" "- rotations") ($nb_files_r)" >> "$LOG_PATH"
     log_time "undo_process()" $start_upr $end_upr >> "$LOG_PATH"
     echo "${SOUND}"
 }
