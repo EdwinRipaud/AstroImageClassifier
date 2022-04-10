@@ -31,6 +31,8 @@ echo "Arguments : $1 $2" >> "$LOG_PATH"
 echo "User: $USER" >> "$LOG_PATH"
 echo "Root directory: $ROOT_PATH" >> "$LOG_PATH"
 
+clear
+
 load_param
 clean_oversize
 

@@ -647,6 +647,9 @@ run_process() { # Global function that classify picture
             end_rp=`gdate +%s.%3N`
             echo "$(log_time "" $start_rp $end_rp)"
             log_time "run_process()" $start_rp $end_rp >> "$LOG_PATH"
+            if [[ $(ls "$BASE_PATH/RAW" | wc -l | xargs) == 0 ]]; then
+                rmdir "$BASE_PATH/RAW"
+            fi
             echo "${SOUND}"
         else
             echo "${RED}Abort process${NORMAL}"
@@ -675,7 +678,7 @@ undo_process() { # Function to undo the previous classification
     nb_files_tot=0
     
     echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
-    
+    mkdir "$BASE_PATH/RAW"
     echo "\nmove ${FOLDERS_NAMES[0]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
     if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[0]}")" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
@@ -683,7 +686,7 @@ undo_process() { # Function to undo the previous classification
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[0]}"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[0]}/${line}" "$BASE_PATH/RAW/"
             nb_files_b=$((nb_files_b+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -698,7 +701,7 @@ undo_process() { # Function to undo the previous classification
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[2]}"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[2]}/${line}" "$BASE_PATH/RAW/"
             nb_files_f=$((nb_files_f+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -713,7 +716,7 @@ undo_process() { # Function to undo the previous classification
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[1]}"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[1]}/${line}" "$BASE_PATH/RAW/"
             nb_files_d=$((nb_files_d+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -728,7 +731,7 @@ undo_process() { # Function to undo the previous classification
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[3]}"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[3]}/${line}" "$BASE_PATH/RAW/"
             nb_files_l=$((nb_files_l+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -756,6 +759,12 @@ undo_process() { # Function to undo the previous classification
     echo "$(printf "%-15s" "- lights") ($nb_files_l)" >> "$LOG_PATH"
     echo "$(printf "%-15s" "- rotations") ($nb_files_r)" >> "$LOG_PATH"
     log_time "undo_process()" $start_upr $end_upr >> "$LOG_PATH"
+    for folders_name in "${FOLDERS_NAMES[@]}"
+    do
+        if [[ $(ls "$BASE_PATH/$folders_name" | wc -l | xargs) == 0 ]]; then
+            rmdir "$BASE_PATH/$folders_name"
+        fi
+    done
     echo "${SOUND}"
 }
 
