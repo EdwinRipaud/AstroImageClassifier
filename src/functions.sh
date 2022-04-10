@@ -443,12 +443,12 @@ biases(){
     # - Biases - #
     ##############
     # Catch and move the biases
-    echo "\nSearch for the biases..."
+    echo "\nSearch for the ${FOLDERS_NAMES[0]}..."
     exiftool -filename -if '$shutterspeed eq "1/8000"' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_biases.txt"
     
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") biases found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") ${FOLDERS_NAMES[0]} found.${NORMAL}"
     
-    echo "Move biases files to the ${ITALIC}${BOLD}'biases/'${NORMAL} directory...\n"
+    echo "Move ${FOLDERS_NAMES[0]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[0]}/'${NORMAL} directory...\n"
 
     make_dir "${FOLDERS_NAMES[0]}"
 
@@ -456,7 +456,7 @@ biases(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/biases/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[0]}/"
     done
     
     nb_files="0"
@@ -477,12 +477,12 @@ flats(){
     # - Flats - #
     #############
     # Catch and move the flats
-    echo "\nSearch for the flats..."
+    echo "\nSearch for the ${FOLDERS_NAMES[2]}..."
     exiftool -filename -if '$MeasuredEV ge 10' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_flats.txt"
 
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") flats found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") ${FOLDERS_NAMES[2]} found.${NORMAL}"
     
-    echo "Move flats files to the ${ITALIC}${BOLD}'flats/'${NORMAL} directory..."
+    echo "Move ${FOLDERS_NAMES[2]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[2]}/'${NORMAL} directory..."
     echo ""
 
     make_dir "${FOLDERS_NAMES[2]}"
@@ -491,7 +491,7 @@ flats(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/flats/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[2]}/"
     done
     
     nb_files="0"
@@ -514,7 +514,7 @@ catch_darks_lights(){
     # and all the others will be place in the "darks" directory.
 
     # Catch and move the lights
-    echo "\nSearch for lights and darks..."
+    echo "\nSearch for ${FOLDERS_NAMES[3]} and ${FOLDERS_NAMES[1]}..."
 
     # The first itetration is to defin the first image of the directory, so it's a separate loop
     TEST=true
@@ -565,9 +565,9 @@ lights(){
     # - Lights - #
     ##############
     # move the lights
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") lights found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") ${FOLDERS_NAMES[3]} found.${NORMAL}"
     
-    echo "Move lights files to the ${ITALIC}${BOLD}'lights/'${NORMAL} directory..."
+    echo "Move ${FOLDERS_NAMES[3]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[3]}/'${NORMAL} directory..."
     echo ""
 
     make_dir "${FOLDERS_NAMES[3]}"
@@ -576,7 +576,7 @@ lights(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/lights/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[3]}/"
     done
     
     nb_files="0"
@@ -597,9 +597,9 @@ darks(){
     # - Darks - #
     #############
     # move the darks
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") darks found.${NORMAL}"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") ${FOLDERS_NAMES[1]} found.${NORMAL}"
     
-    echo "Move darks files to the ${ITALIC}${BOLD}'darks/'${NORMAL} directory..."
+    echo "Move ${FOLDERS_NAMES[1]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[1]}/'${NORMAL} directory..."
     echo ""
 
     make_dir "${FOLDERS_NAMES[1]}"
@@ -608,7 +608,7 @@ darks(){
     for line in $lines
     do
         overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/darks/"
+        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[1]}/"
     done
     
     nb_files="0"
@@ -676,14 +676,14 @@ undo_process() { # Function to undo the previous classification
     
     echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
     
-    echo "\nmove biases..."
+    echo "\nmove ${FOLDERS_NAMES[0]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/biases")" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
+    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[0]}")" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/biases"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[0]}"/${line} "$BASE_PATH/RAW/"
             nb_files_b=$((nb_files_b+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -691,14 +691,14 @@ undo_process() { # Function to undo the previous classification
         echo "No file to move"
     fi
     
-    echo "\nmove flats..."
+    echo "\nmove ${FOLDERS_NAMES[2]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/flats")" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
+    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[2]}")" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_flats.txt")
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/flats"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[2]}"/${line} "$BASE_PATH/RAW/"
             nb_files_f=$((nb_files_f+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -706,14 +706,14 @@ undo_process() { # Function to undo the previous classification
         echo "No file to move"
     fi
     
-    echo "\nmove darks..."
+    echo "\nmove ${FOLDERS_NAMES[1]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/darks")" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
+    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[1]}")" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_darks.txt")
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/darks"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[1]}"/${line} "$BASE_PATH/RAW/"
             nb_files_d=$((nb_files_d+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -721,14 +721,14 @@ undo_process() { # Function to undo the previous classification
         echo "No file to move"
     fi
 
-    echo "\nmove lights..."
+    echo "\nmove ${FOLDERS_NAMES[3]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/lights")" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
+    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[3]}")" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_lights.txt")
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/lights"/${line} "$BASE_PATH/RAW/"
+            mv "$BASE_PATH/${FOLDERS_NAMES[3]}"/${line} "$BASE_PATH/RAW/"
             nb_files_l=$((nb_files_l+1))
         done
         echo "${GREEN}done${NORMAL}"
