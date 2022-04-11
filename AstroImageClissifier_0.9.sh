@@ -6,6 +6,12 @@
 #  Created by edwin ripaud on 19/03/2022.
 #
 
+# TODO: utiliser les nombres binaires pour faire le choix du script à exécuter
+# TODO: chercher parmis les script dans le dossier '/SCRIPT_PATH' en quelle lange ils sont, puis en déduire le script à exécuter
+# TODO: ajouter/modifier les options pour que l'on puisse exécuter : une classification seule, un script siril seule (à partir des images trouvée) et une classification suivi d'un script SiriL
+# TODO: modifier le undo pour qu'il supprime le dossier créé par siril lors de l'exécution d'un script
+# TODO: ajouter dans les logs les opération sur les exécution de script SiriL
+
 ROOT_PATH="$(pwd)"
 
 source "$ROOT_PATH/src/functions.sh"
@@ -24,8 +30,15 @@ fi
 LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
 
-
 check_dependencies
+
+val=$((2#101))
+if [[ $(($val|2#010))=$((2#10)) ]]; then
+    echo "True: $(($val|2#010))"
+else
+    echo "False"
+fi
+
 exit 1;
 
 # output the basis log informations

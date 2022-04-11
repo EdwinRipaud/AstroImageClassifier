@@ -34,8 +34,9 @@ SLEEP=0.05
 #/Applications/SiriL.app/Contents/MacOS/siril-cli -d "/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test" -s "/Applications/SiriL.app/Contents/Resources/share/siril/scripts/Couleur_Pre-traitement.ssf"
 SIRIL_PATH=""
 SCRIPT_PATH="../Resources/share/siril/scripts"
-SCRIPTS=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDOF.ssf" "Couleur_Pre-traitement_SansDarks.ssf" )
-
+SCRIPTS_fr=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDarks.ssf" "Couleur_Pre-traitement_SansDOF.ssf" )
+SCRIPTS_en=( "OSC_Preprocessing.ssf" "OSC_Preprocessing_WithoutFlat.ssf" "OSC_Preprocessing_WithoutDark.ssf" "OSC_Preprocessing_WithoutDBF.ssf" )
+SCRIPTS=(${SCRIPTS_fr[@]} ${SCRIPTS_en[@]})
 
 check_dependencies() { # Function that will if all the dépendencies are available
     # check for Siril command line tool
@@ -81,7 +82,12 @@ check_dependencies() { # Function that will if all the dépendencies are availab
     esac
     
     # check for exiftool
-    command -v "exiftool" > /dev/null && echo "(OK) Exiftool" || echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install exiftool.${NORMAL}" && exit 1;
+    if command -v "exiftool" > /dev/null 2>&1; then
+        echo "(OK) Exiftool"
+    else
+        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You must have exiftool (${UNDERLINED}www.exiftool.org${NORMAL}${RED}${BOLD}) installed.${NORMAL}"
+        exit 1;
+    fi
 }
 
 overwrite(){ # Function that will write the input text on the previous line of the termial, to create the overwrite effect
