@@ -25,6 +25,9 @@ LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
 
 
+check_dependencies
+exit 1;
+
 # output the basis log informations
 echo "Execution date: $(date)" >> "$LOG_PATH"
 echo "Arguments : $1 $2" >> "$LOG_PATH"

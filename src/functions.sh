@@ -31,6 +31,59 @@ MAX_SIZE=20
 MAX_AGE=90
 SLEEP=0.05
 
+#/Applications/SiriL.app/Contents/MacOS/siril-cli -d "/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test" -s "/Applications/SiriL.app/Contents/Resources/share/siril/scripts/Couleur_Pre-traitement.ssf"
+SIRIL_PATH=""
+SCRIPT_PATH="../Resources/share/siril/scripts"
+SCRIPTS=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDOF.ssf" "Couleur_Pre-traitement_SansDarks.ssf" )
+
+
+check_dependencies() { # Function that will if all the dépendencies are available
+    # check for Siril command line tool
+    case "$OSTYPE" in
+        (darwin*)
+            echo "(OK) MacOS"
+            if [ -e "/Applications/SiriL.app/Contents/MacOS/siril-cli" ]; then
+                SIRIL_PATH="/Applications/SiriL.app/Contents/MacOS/siril-cli"
+                echo "(OK) SiriL"
+            elif [ -e "/Applications/Siril.app/Contents/Resources/bin/Siril-cli" ]; then
+                SIRIL_PATH="/Applications/Siril.app/Contents/Resources/bin/Siril-cli"
+                echo "(OK) SiriL"
+            else
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
+            fi
+            ;;
+        (linux*)
+            echo "(OK) Linux"
+            if [ -e "/usr/local/bin/siril-cli" ]; then
+                SIRIL_PATH="/usr/local/bin/siril-cli"
+                echo "(OK) SiriL"
+            elif [ -e "/usr/bin/siril-cli" ]; then
+                SIRIL_PATH="/usr/bin/siril-cli"
+                echo "(OK) SiriL"
+            else
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
+            fi
+            ;;
+        (win* | msys* | cygwin*)
+            echo "(OK) Windows"
+            if [ -e "C:\\Program Files\\SiriL\\bin\\siril-cli.exe" ]; then
+                SIRIL_PATH="C:\\Program Files\\SiriL\\bin\\siril-cli.exe"
+                echo "(OK) SiriL"
+            elif [ -e "C:\\Program Files (x86)\\SiriL\\bin\\siril-cli.exe" ]; then
+                SIRIL_PATH="C:\\Program Files (x86)\\SiriL\\bin\\siril-cli.exe"
+                echo "(OK) SiriL"
+            else
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
+            fi
+            ;;
+        (*)
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} unknown Operating System.${NORMAL}"
+    esac
+    
+    # check for exiftool
+    command -v "exiftool" > /dev/null && echo "(OK) Exiftool" || echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install exiftool.${NORMAL}" && exit 1;
+}
+
 overwrite(){ # Function that will write the input text on the previous line of the termial, to create the overwrite effect
     sleep "$SLEEP"
     printf "\033[1A"  # move cursor one line up
