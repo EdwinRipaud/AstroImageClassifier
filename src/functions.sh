@@ -51,7 +51,7 @@ check_dependencies() { # Function that will if all the dépendencies are availab
                 SIRIL_PATH="/Applications/Siril.app/Contents/Resources/bin/Siril-cli"
                 echo "(OK) SiriL"
             else
-                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
             fi
             ;;
         (linux*)
@@ -63,7 +63,7 @@ check_dependencies() { # Function that will if all the dépendencies are availab
                 SIRIL_PATH="/usr/bin/siril-cli"
                 echo "(OK) SiriL"
             else
-                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
             fi
             ;;
         (win* | msys* | cygwin*)
@@ -75,18 +75,18 @@ check_dependencies() { # Function that will if all the dépendencies are availab
                 SIRIL_PATH="C:\\Program Files (x86)\\SiriL\\bin\\siril-cli.exe"
                 echo "(OK) SiriL"
             else
-                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
             fi
             ;;
         (*)
-            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} unknown Operating System.${NORMAL}"
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} unknown Operating System.${NORMAL}"
     esac
     
     # check for exiftool
     if command -v "exiftool" > /dev/null 2>&1; then
         echo "(OK) Exiftool"
     else
-        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} You must have exiftool (${UNDERLINED}www.exiftool.org${NORMAL}${RED}${BOLD}) installed.${NORMAL}"
+        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} You must have exiftool (${UNDERLINED}www.exiftool.org${NORMAL}${RED}${BOLD}) installed.${NORMAL}"
         exit 1;
     fi
 }
@@ -151,7 +151,7 @@ load_param() { # Function that load parameters from the .config file and store t
                     if [[ "${ORIENTATION_NAMES[*]}" =~ "${line#*: }" ]]; then
                         ORIENTATION="${line#*: }"
                     else
-                        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} orientation value unknown.${NORMAL}"
+                        echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} orientation value unknown.${NORMAL}"
                     fi
                     ;;
                 ("6- ")
@@ -262,7 +262,7 @@ update_param() { # Global function to walk through parameters
                     write_param "1- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not enought folder names or bad delimiter.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not enought folder names or bad delimiter.${NORMAL}"
                     echo "Impossible to write the new parameter."
                 fi
                 ;;
@@ -278,7 +278,7 @@ update_param() { # Global function to walk through parameters
                     write_param "2- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
             ("3")
@@ -293,7 +293,7 @@ update_param() { # Global function to walk through parameters
                     write_param "3- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
             ("4")
@@ -308,7 +308,7 @@ update_param() { # Global function to walk through parameters
                     write_param "4- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
             ("5")
@@ -324,7 +324,7 @@ update_param() { # Global function to walk through parameters
                     write_param "5- " "${actual#*: }" "${ORIENTATION_NAMES[(($newArg-1))]}"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
             ("6")
@@ -339,7 +339,7 @@ update_param() { # Global function to walk through parameters
                     write_param "6- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
             ("7")
@@ -354,7 +354,7 @@ update_param() { # Global function to walk through parameters
                     write_param "7- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
             ("9")
@@ -369,7 +369,7 @@ update_param() { # Global function to walk through parameters
                     write_param "8- " "${actual#*: }" "$newArg"
                     echo "${GREEN}done${NORMAL}"
                 else
-                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} not a number.${NORMAL}"
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
             ("reset")
@@ -379,7 +379,7 @@ update_param() { # Global function to walk through parameters
                 echo "${GREEN}done${NORMAL}"
                 ;;
             (*)
-                echo "\n${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} Wrong value, get: ${ITALIC}$arg${NORMAL}"
+                echo "\n${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} Wrong value, get: ${ITALIC}$arg${NORMAL}"
                 ;;
         esac
         echo "\nEnter the number of the parameter to change ${DIM}(\"n\" or \"q\" to exit)${NORMAL}:"
@@ -524,6 +524,7 @@ biases(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[0]}/"
         done
+        IMG_TYPE="$(($IMG_TYPE | 2#0100))"
     else
         echo "No file to move"
     fi
@@ -564,6 +565,7 @@ flats(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[2]}/"
         done
+        IMG_TYPE="$(($IMG_TYPE | 2#0010))"
     else
         echo "No file to move"
     fi
@@ -618,11 +620,11 @@ catch_darks_lights(){
         fi
     done
     
-    if [ $index == 0 ]; then
-        echo "Only lights"
-        for ((i=0; i<$index-1; i++))
+    if [ $index = 0 ]; then
+        for ((i=0; i<$count; i++))
         do
             echo "${NAME_array[i]}" >> "$TEMP_PATH/temp_lights.txt"
+            touch "$TEMP_PATH/temp_darks.txt"
         done
     else
         # Catch darks to move
@@ -662,6 +664,7 @@ lights(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[3]}/"
         done
+        IMG_TYPE="$(($IMG_TYPE | 2#0001))"
     else
         echo "No file to move"
     fi
@@ -699,6 +702,7 @@ darks(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[1]}/"
         done
+        IMG_TYPE="$(($IMG_TYPE | 2#1000))"
     else
         echo "No file to move"
     fi
@@ -754,24 +758,42 @@ run_process() { # Global function that classify picture
 # --- SCRIPT SECTION --- #
 which_script() {
     echo "choosing script from detected image types"
-    case "$(($IMG_TYPE))" in
+    case "$(($IMG_TYPE))" in # (Dark, Offset, Flats, Lights)
         ("$((2#1111))")
             echo "Processing DOF + Lights"
             ;;
         ("$((2#0111))")
             echo "Processing without Darks"
             ;;
+        ("$((2#1011))")
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}', no script correspond to this configuration.${NORMAL}"
+            # demander un renvoie vers le script Sans DOF
+            ;;
         ("$((2#1101))")
             echo "Processing without Flats"
+            ;;
+        ("$((2#1110))")
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[3]}', no script correspond to this configuration.${NORMAL}"
+            ;;
+        ("$((2#0011))")
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[1]}', no script correspond to this configuration.${NORMAL}"
+            # demander un renvoie vers le script Sans DOF
+            ;;
+        ("$((2#0101))")
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[2]}', no script correspond to this configuration.${NORMAL}"
+            # demander un renvoie vers le script Sans DOF
+            ;;
+        ("$((2#0110))")
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[3]}', no script correspond to this configuration.${NORMAL}"
             ;;
         ("$((2#0001))")
             echo "Processing without DOF"
             ;;
         ("$((2#0000))")
-            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} no images detected, please check your '/RAW' folder.${NORMAL}"
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no images detected, please check your '/RAW' folder and/or the configuration of the utility.${NORMAL}"
             ;;
         (*)
-            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} no images detected, please check your '/RAW' folder.${NORMAL}"
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} unknown error.${NORMAL}"
             ;;
     esac
 }
@@ -795,8 +817,9 @@ undo_process() { # Function to undo the previous classification
         mkdir "$BASE_PATH/RAW"
     fi
     echo "\nmove ${FOLDERS_NAMES[0]}..."
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}"
     if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
+        echo ""
         lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
@@ -810,8 +833,9 @@ undo_process() { # Function to undo the previous classification
     fi
     
     echo "\nmove ${FOLDERS_NAMES[2]}..."
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") images${NORMAL}"
     if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
+        echo ""
         lines=$(cat "$TEMP_PATH/temp_flats.txt")
         for line in $lines
         do
@@ -825,8 +849,9 @@ undo_process() { # Function to undo the previous classification
     fi
     
     echo "\nmove ${FOLDERS_NAMES[1]}..."
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}"
     if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
+        echo ""
         lines=$(cat "$TEMP_PATH/temp_darks.txt")
         for line in $lines
         do
@@ -840,8 +865,9 @@ undo_process() { # Function to undo the previous classification
     fi
 
     echo "\nmove ${FOLDERS_NAMES[3]}..."
-    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") images${NORMAL}\n"
+    echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") images${NORMAL}"
     if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
+        echo ""
         lines=$(cat "$TEMP_PATH/temp_lights.txt")
         for line in $lines
         do

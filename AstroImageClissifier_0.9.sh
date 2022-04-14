@@ -10,10 +10,9 @@
 #####################
 # - Next features - #
 #####################
-# TODO: utiliser les nombres binaires pour faire le choix du script à exécuter
-# TODO: chercher parmis les script dans le dossier '/SCRIPT_PATH' en quelle lange ils sont, puis en déduire le script à exécuter
+# TODO: chercher parmis les script dans le dossier '/SCRIPT_PATH' en quelle langue ils sont, puis en déduire le script à exécuter
+# TODO: vérifier si le script à exécuté est disponible, sinon renvoyer le lien de téléchargement des scripts SiriL (free-astro.org/index.php?title=Siril:scripts)
 # TODO: ajouter/modifier les options pour que l'on puisse exécuter : une classification seule, un script siril seule (à partir des images trouvée) et une classification suivi d'un script SiriL
-# TODO: modifier le undo pour qu'il supprime le dossier créé par siril lors de l'exécution d'un script
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
 # TODO: avant l'éxécution d'un script SiriL, demander une confiramtion et prévenir de l'espace que va prendre le traitement
 
@@ -46,30 +45,12 @@ TODAY="$(date +%s)"
 
 check_dependencies
 
-#val1="$((2#10100))"
-#val2="$((2#10010))"
-#key="$((2#10011))"
-#if [[ "$(($val1 ^ $key))" = 0 ]]; then
-#    echo "True: val1^key=$(($val1 ^ $key))"
-#    echo "False: val2^key=$(($val2 ^ $key))"
-#elif [[ "$(($val2 ^ $key))" = 0 ]]; then
-#    echo "False: val1^key=$(($val1 ^ $key))"
-#    echo "True: val2^key=$(($val2 ^ $key))"
+#index=0
+#if [ $index = 0 ]; then
+#    echo "index : $index"
 #else
-#    echo "False: val1^key=$(($val1 ^ $key))"
-#    echo "False: val2^key=$(($val2 ^ $key))"
+#    echo "Je ne compren pas"
 #fi
-#
-#
-#case "$(($val1))" in
-#    ("$((2#10100))")
-#        echo "Yaha"
-#        ;;
-#    (*)
-#        echo "jndzdbfi"
-#        ;;
-#esac
-#
 #exit 1;
 
 # output the basis log informations
@@ -136,6 +117,7 @@ while getopts ":r:uthp" OPT "$@"; do
             run_process
             printf '\n%.0s' {1..4} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
+            which_script
             exit 1;;
 
         ("u")
