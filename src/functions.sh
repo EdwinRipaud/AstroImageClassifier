@@ -508,21 +508,26 @@ biases(){
     
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") ${FOLDERS_NAMES[0]} found.${NORMAL}"
     
-    echo "Move ${FOLDERS_NAMES[0]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[0]}/'${NORMAL} directory...\n"
-
-    make_dir "${FOLDERS_NAMES[0]}"
-
-    lines=$(cat "$TEMP_PATH/temp_biases.txt")
-    for line in $lines
-    do
-        overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[0]}/"
-    done
-    
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_biases.txt" ]; then
         nb_files=$(wc -l < "$TEMP_PATH/temp_biases.txt" | sed 's/ //g')
     fi
+    
+    if [ ! $nb_files == 0 ]; then
+        echo "Move ${FOLDERS_NAMES[0]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[0]}/'${NORMAL} directory...\n"
+
+        make_dir "${FOLDERS_NAMES[0]}"
+
+        lines=$(cat "$TEMP_PATH/temp_biases.txt")
+        for line in $lines
+        do
+            overwrite "${line}..."
+            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[0]}/"
+        done
+    else
+        echo "No file to move"
+    fi
+    
     IFS=$OLDIFS
     end_b=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- biases()") ($nb_files)" $start_b $end_b >> "$LOG_PATH"
@@ -542,22 +547,27 @@ flats(){
 
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") ${FOLDERS_NAMES[2]} found.${NORMAL}"
     
-    echo "Move ${FOLDERS_NAMES[2]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[2]}/'${NORMAL} directory..."
-    echo ""
-
-    make_dir "${FOLDERS_NAMES[2]}"
-
-    lines=$(cat "$TEMP_PATH/temp_flats.txt")
-    for line in $lines
-    do
-        overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[2]}/"
-    done
-    
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_flats.txt" ]; then
         nb_files=$(wc -l < "$TEMP_PATH/temp_flats.txt" | sed 's/ //g')
     fi
+    
+    if [ ! $nb_files == 0 ]; then
+        echo "Move ${FOLDERS_NAMES[2]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[2]}/'${NORMAL} directory..."
+        echo ""
+
+        make_dir "${FOLDERS_NAMES[2]}"
+
+        lines=$(cat "$TEMP_PATH/temp_flats.txt")
+        for line in $lines
+        do
+            overwrite "${line}..."
+            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[2]}/"
+        done
+    else
+        echo "No file to move"
+    fi
+    
     IFS=$OLDIFS
     end_f=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- flats()") ($nb_files)" $start_f $end_f >> "$LOG_PATH"
@@ -608,7 +618,7 @@ catch_darks_lights(){
         fi
     done
     
-    if [ $index = 0 ]; then
+    if [ $index == 0 ]; then
         echo "Only lights"
         for ((i=0; i<$index-1; i++))
         do
@@ -635,22 +645,27 @@ lights(){
     # move the lights
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") ${FOLDERS_NAMES[3]} found.${NORMAL}"
     
-    echo "Move ${FOLDERS_NAMES[3]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[3]}/'${NORMAL} directory..."
-    echo ""
-
-    make_dir "${FOLDERS_NAMES[3]}"
-
-    lines=$(cat "$TEMP_PATH/temp_lights.txt")
-    for line in $lines
-    do
-        overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[3]}/"
-    done
-    
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_lights.txt" ]; then
         nb_files=$(wc -l < "$TEMP_PATH/temp_lights.txt" | sed 's/ //g')
     fi
+    
+    if [ ! $nb_files == 0 ]; then
+        echo "Move ${FOLDERS_NAMES[3]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[3]}/'${NORMAL} directory..."
+        echo ""
+
+        make_dir "${FOLDERS_NAMES[3]}"
+
+        lines=$(cat "$TEMP_PATH/temp_lights.txt")
+        for line in $lines
+        do
+            overwrite "${line}..."
+            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[3]}/"
+        done
+    else
+        echo "No file to move"
+    fi
+    
     IFS=$OLDIFS
     end_l=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- lights()") ($nb_files)" $start_l $end_l >> "$LOG_PATH"
@@ -667,22 +682,27 @@ darks(){
     # move the darks
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") ${FOLDERS_NAMES[1]} found.${NORMAL}"
     
-    echo "Move ${FOLDERS_NAMES[1]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[1]}/'${NORMAL} directory..."
-    echo ""
-
-    make_dir "${FOLDERS_NAMES[1]}"
-
-    lines=$(cat "$TEMP_PATH/temp_darks.txt")
-    for line in $lines
-    do
-        overwrite "${line}..."
-        mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[1]}/"
-    done
-    
     nb_files="0"
     if [ -e "$TEMP_PATH/temp_darks.txt" ]; then
         nb_files=$(wc -l < "$TEMP_PATH/temp_darks.txt" | sed 's/ //g')
     fi
+    
+    if [ ! $nb_files == 0 ]; then
+        echo "Move ${FOLDERS_NAMES[1]} files to the ${ITALIC}${BOLD}'${FOLDERS_NAMES[1]}/'${NORMAL} directory..."
+        echo ""
+
+        make_dir "${FOLDERS_NAMES[1]}"
+
+        lines=$(cat "$TEMP_PATH/temp_darks.txt")
+        for line in $lines
+        do
+            overwrite "${line}..."
+            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[1]}/"
+        done
+    else
+        echo "No file to move"
+    fi
+    
     IFS=$OLDIFS
     end_d=`gdate +%s.%3N`
     log_time "$(printf "%-15s" "- darks()") ($nb_files)" $start_d $end_d >> "$LOG_PATH"
@@ -762,7 +782,6 @@ undo_process() { # Function to undo the previous classification
     start_upr=`gdate +%s.%3N`
     OLDIFS=$IFS
     IFS=$'\n'
-    echo $(pwd)
     
     nb_files_b=0
     nb_files_f=0
@@ -772,10 +791,12 @@ undo_process() { # Function to undo the previous classification
     nb_files_tot=0
     
     echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
-    mkdir "$BASE_PATH/RAW"
+    if [ ! -d "$BASE_PATH/RAW" ]; then
+        mkdir "$BASE_PATH/RAW"
+    fi
     echo "\nmove ${FOLDERS_NAMES[0]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[0]}")" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
@@ -790,7 +811,7 @@ undo_process() { # Function to undo the previous classification
     
     echo "\nmove ${FOLDERS_NAMES[2]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[2]}")" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_flats.txt")
         for line in $lines
         do
@@ -805,7 +826,7 @@ undo_process() { # Function to undo the previous classification
     
     echo "\nmove ${FOLDERS_NAMES[1]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[1]}")" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_darks.txt")
         for line in $lines
         do
@@ -820,7 +841,7 @@ undo_process() { # Function to undo the previous classification
 
     echo "\nmove ${FOLDERS_NAMES[3]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") images${NORMAL}\n"
-    if [[ ! -z "$(ls -A "$BASE_PATH/${FOLDERS_NAMES[3]}")" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
         lines=$(cat "$TEMP_PATH/temp_lights.txt")
         for line in $lines
         do
@@ -855,7 +876,7 @@ undo_process() { # Function to undo the previous classification
     log_time "undo_process()" $start_upr $end_upr >> "$LOG_PATH"
     for folders_name in "${FOLDERS_NAMES[@]}"
     do
-        if [[ $(ls "$BASE_PATH/$folders_name" | wc -l | xargs) == 0 ]]; then
+        if [[ -d "$BASE_PATH/$folders_name" ]]; then
             rmdir "$BASE_PATH/$folders_name"
         fi
     done

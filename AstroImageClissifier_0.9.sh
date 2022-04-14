@@ -21,7 +21,6 @@
 ##############
 # - Issues - #
 ##############
-# TODO: !!! ISSUE 1 --> problème de chemin lors de l'appelle des fonction de classifications et qu'il n'y a pas d'image de ce type (fichier .txt inexistant). Ajouter une vérification d'existance du fichier .txt au début de la fonction.
 
 
 #######################
@@ -83,7 +82,7 @@ echo "Root directory: $ROOT_PATH" >> "$LOG_PATH"
 ##############################
 # - Cleaning working space - #
 ##############################
-clear
+#clear
 
 load_param
 clean_oversize
