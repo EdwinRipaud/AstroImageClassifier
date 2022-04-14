@@ -32,6 +32,7 @@ MAX_AGE=90
 SLEEP=0.05
 
 #/Applications/SiriL.app/Contents/MacOS/siril-cli -d "/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test" -s "/Applications/SiriL.app/Contents/Resources/share/siril/scripts/Couleur_Pre-traitement.ssf"
+IMG_TYPE="$((2#0000))" # (Dark, Offset, Flats, Lights)
 SIRIL_PATH=""
 SCRIPT_PATH="../Resources/share/siril/scripts"
 SCRIPTS_fr=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDarks.ssf" "Couleur_Pre-traitement_SansDOF.ssf" )
@@ -565,9 +566,9 @@ flats(){
 
 catch_darks_lights(){
     start_cdl=`gdate +%s.%3N`
-    #####################
-    # - darks & lights- #
-    #####################
+    ######################
+    # - darks & lights - #
+    ######################
     # Saerch in all the remaning images a discontinuity in the naming of the file number.
     # All the images before the discontinuity will be place in the "lights" directory
     # and all the others will be place in the "darks" directory.
@@ -606,12 +607,20 @@ catch_darks_lights(){
             fi
         fi
     done
-        
-    # Catch darks to move
-    for ((i=$index-1; i<$count; i++))
-    do
-        echo "${NAME_array[i]}" >> "$TEMP_PATH/temp_darks.txt"
-    done
+    
+    if [ $index = 0 ]; then
+        echo "Only lights"
+        for ((i=0; i<$index-1; i++))
+        do
+            echo "${NAME_array[i]}" >> "$TEMP_PATH/temp_lights.txt"
+        done
+    else
+        # Catch darks to move
+        for ((i=$index-1; i<$count; i++))
+        do
+            echo "${NAME_array[i]}" >> "$TEMP_PATH/temp_darks.txt"
+        done
+    fi
     end_cdl=`gdate +%s.%3N`
     log_time "- catch_darks_lights()" $start_cdl $end_cdl >> "$LOG_PATH"
 }
@@ -719,6 +728,32 @@ run_process() { # Global function that classify picture
             printf '\n%.0s' {1..7} >> "$LOG_PATH"
         fi
     fi
+}
+
+
+# --- SCRIPT SECTION --- #
+which_script() {
+    echo "choosing script from detected image types"
+    case "$(($IMG_TYPE))" in
+        ("$((2#1111))")
+            echo "Processing DOF + Lights"
+            ;;
+        ("$((2#0111))")
+            echo "Processing without Darks"
+            ;;
+        ("$((2#1101))")
+            echo "Processing without Flats"
+            ;;
+        ("$((2#0001))")
+            echo "Processing without DOF"
+            ;;
+        ("$((2#0000))")
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} no images detected, please check your '/RAW' folder.${NORMAL}"
+            ;;
+        (*)
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}${BOLD} no images detected, please check your '/RAW' folder.${NORMAL}"
+            ;;
+    esac
 }
 
 
