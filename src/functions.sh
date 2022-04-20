@@ -35,9 +35,9 @@ SLEEP=0.05
 IMG_TYPE="$((2#0000))" # (Dark, Offset, Flats, Lights)
 SIRIL_PATH=""
 SCRIPT_PATH="../Resources/share/siril/scripts"
-SCRIPTS_fr=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDarks.ssf" "Couleur_Pre-traitement_SansDOF.ssf" )
+SCRIPTS_fr=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDark.ssf" "Couleur_Pre-traitement_SansDOF.ssf" )
 SCRIPTS_en=( "OSC_Preprocessing.ssf" "OSC_Preprocessing_WithoutFlat.ssf" "OSC_Preprocessing_WithoutDark.ssf" "OSC_Preprocessing_WithoutDBF.ssf" )
-SCRIPTS=(${SCRIPTS_fr[@]} ${SCRIPTS_en[@]})
+SCRIPTS=$SCRIPTS_fr
 
 check_dependencies() { # Function that will if all the dépendencies are available
     # check for Siril command line tool
@@ -46,9 +46,11 @@ check_dependencies() { # Function that will if all the dépendencies are availab
             echo "(OK) MacOS"
             if [ -e "/Applications/SiriL.app/Contents/MacOS/siril-cli" ]; then
                 SIRIL_PATH="/Applications/SiriL.app/Contents/MacOS/siril-cli"
+                SCRIPT_PATH="/Applications/SiriL.app/Contents/Resources/share/siril/scripts"
                 echo "(OK) SiriL"
             elif [ -e "/Applications/Siril.app/Contents/Resources/bin/Siril-cli" ]; then
                 SIRIL_PATH="/Applications/Siril.app/Contents/Resources/bin/Siril-cli"
+                SCRIPT_PATH="/Applications/Siril.app/Contents/Resources/Resources/share/siril/scripts"
                 echo "(OK) SiriL"
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
@@ -58,9 +60,11 @@ check_dependencies() { # Function that will if all the dépendencies are availab
             echo "(OK) Linux"
             if [ -e "/usr/local/bin/siril-cli" ]; then
                 SIRIL_PATH="/usr/local/bin/siril-cli"
+                SCRIPT_PATH="/usr/local/Resources/share/siril/scripts"
                 echo "(OK) SiriL"
             elif [ -e "/usr/bin/siril-cli" ]; then
-                SIRIL_PATH="/usr/bin/siril-cli"
+                SIRIL_PATH="/usr/bin/Resources/share/siril/scripts"
+                SCRIPT_PATH="/usr/bin"
                 echo "(OK) SiriL"
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
@@ -70,9 +74,11 @@ check_dependencies() { # Function that will if all the dépendencies are availab
             echo "(OK) Windows"
             if [ -e "C:\\Program Files\\SiriL\\bin\\siril-cli.exe" ]; then
                 SIRIL_PATH="C:\\Program Files\\SiriL\\bin\\siril-cli.exe"
+                SCRIPT_PATH="C:\\Program Files\\SiriL\\Resources/share/siril/scripts"
                 echo "(OK) SiriL"
             elif [ -e "C:\\Program Files (x86)\\SiriL\\bin\\siril-cli.exe" ]; then
                 SIRIL_PATH="C:\\Program Files (x86)\\SiriL\\bin\\siril-cli.exe"
+                SCRIPT_PATH="C:\\Program Files (x86)\\SiriL\\Resources/share/siril/scripts"
                 echo "(OK) SiriL"
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} You need to install Siril (${UNDERLINED}www.siril.org${NORMAL}) to run some function of this program.${NORMAL}"
@@ -798,6 +804,28 @@ which_script() {
     esac
 }
 
+script_language() {
+    echo "Script language"
+    nb_fr=0
+    nb_en=0
+    for f in $(ls "$SCRIPT_PATH"); do
+        if [[ "${SCRIPTS_fr[*]}" =~ "$f" ]]; then
+            echo "Script Fr -> $f"
+            nb_fr=$((nb_fr+1))
+        elif [[ "${SCRIPTS_en[*]}" =~ "$f" ]]; then
+            echo "Script EN -> $f"
+            nb_en=$((nb_en+1))
+        else
+            echo "Another script: $f"
+        fi
+    done
+    if [[ nb_fr -ge nb_en ]]; then
+        SCRIPTS=${SCRIPTS_fr[*]}
+    else
+        SCRIPTS=${SCRIPTS_en[*]}
+    fi
+    echo "$nb_fr, $nb_en : ${SCRIPTS[*]}"
+}
 
 # --- UNDO SECTION --- #
 undo_process() { # Function to undo the previous classification

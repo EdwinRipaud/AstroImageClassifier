@@ -10,7 +10,8 @@
 #####################
 # - Next features - #
 #####################
-# TODO: chercher parmis les script dans le dossier '/SCRIPT_PATH' en quelle langue ils sont, puis en déduire le script à exécuter
+# TODO: nettoyer les affichages dans script_language() [function.sh -> line 807]
+
 # TODO: vérifier si le script à exécuté est disponible, sinon renvoyer le lien de téléchargement des scripts SiriL (free-astro.org/index.php?title=Siril:scripts)
 # TODO: ajouter/modifier les options pour que l'on puisse exécuter : une classification seule, un script siril seule (à partir des images trouvée) et une classification suivi d'un script SiriL
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
@@ -45,13 +46,15 @@ TODAY="$(date +%s)"
 
 check_dependencies
 
-#index=0
-#if [ $index = 0 ]; then
-#    echo "index : $index"
-#else
-#    echo "Je ne compren pas"
-#fi
-#exit 1;
+script_language
+
+index=0
+if [ $index = 0 ]; then
+    echo "index : $index"
+else
+    echo "Je ne compren pas"
+fi
+exit 1;
 
 # output the basis log informations
 echo "Execution date: $(date)" >> "$LOG_PATH"
