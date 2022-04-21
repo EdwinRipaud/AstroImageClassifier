@@ -38,6 +38,7 @@ SCRIPT_PATH="../Resources/share/siril/scripts"
 SCRIPTS_fr=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDark.ssf" "Couleur_Pre-traitement_SansDOF.ssf" )
 SCRIPTS_en=( "OSC_Preprocessing.ssf" "OSC_Preprocessing_WithoutFlat.ssf" "OSC_Preprocessing_WithoutDark.ssf" "OSC_Preprocessing_WithoutDBF.ssf" )
 SCRIPTS=$SCRIPTS_fr
+EXEC_SCRIPT="${SCRIPTS[0]}"
 
 check_dependencies() { # Function that will if all the dépendencies are available
     # check for Siril command line tool
@@ -762,69 +763,93 @@ run_process() { # Global function that classify picture
 
 
 # --- SCRIPT SECTION --- #
+script_language() {
+    nb_fr=0
+    nb_en=0
+    for f in $(ls "$SCRIPT_PATH"); do
+        if [[ "${SCRIPTS_fr[*]}" =~ "$f" ]]; then
+            nb_fr=$((nb_fr+1))
+        elif [[ "${SCRIPTS_en[*]}" =~ "$f" ]]; then
+            nb_en=$((nb_en+1))
+        fi
+    done
+    if [[ nb_fr -ge nb_en ]]; then
+        SCRIPTS=(${SCRIPTS_fr[*]})
+    else
+        SCRIPTS=(${SCRIPTS_en[*]})
+    fi
+}
+
 which_script() {
-    echo "choosing script from detected image types"
     case "$(($IMG_TYPE))" in # (Dark, Offset, Flats, Lights)
         ("$((2#1111))")
-            echo "Processing DOF + Lights"
+            echo "Processing DOF + Lights (${SCRIPTS[0]})"
+            EXEC_SCRIPT=${SCRIPTS[0]}
+            if [[ -e "$SCRIPT_PATH/${SCRIPTS[0]}" ]]; then
+                EXEC_SCRIPT=${SCRIPTS[0]}
+                echo "Script '$EXEC_SCRIPT' have been found"
+            else
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+            fi
             ;;
         ("$((2#0111))")
-            echo "Processing without Darks"
+            echo "Processing without Darks (${SCRIPTS[2]})"
+            EXEC_SCRIPT=${SCRIPTS[2]}
+            if [[ -e "$SCRIPT_PATH/${SCRIPTS[2]}" ]]; then
+                EXEC_SCRIPT=${SCRIPTS[2]}
+                echo "Script '$EXEC_SCRIPT' have been found"
+            else
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+            fi
             ;;
         ("$((2#1011))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}', no script correspond to this configuration.${NORMAL}"
+            echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
             # demander un renvoie vers le script Sans DOF
             ;;
         ("$((2#1101))")
-            echo "Processing without Flats"
+            echo "Processing without Flats (${SCRIPTS[1]})"
+            EXEC_SCRIPT=${SCRIPTS[1]}
+            if [[ -e "$SCRIPT_PATH/${SCRIPTS[1]}" ]]; then
+                EXEC_SCRIPT=${SCRIPTS[1]}
+                echo "Script '$EXEC_SCRIPT' have been found"
+            else
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+            fi
             ;;
         ("$((2#1110))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[3]}', no script correspond to this configuration.${NORMAL}"
             ;;
         ("$((2#0011))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[1]}', no script correspond to this configuration.${NORMAL}"
+            echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
             # demander un renvoie vers le script Sans DOF
             ;;
         ("$((2#0101))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[2]}', no script correspond to this configuration.${NORMAL}"
+            echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
             # demander un renvoie vers le script Sans DOF
             ;;
         ("$((2#0110))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[3]}', no script correspond to this configuration.${NORMAL}"
             ;;
         ("$((2#0001))")
-            echo "Processing without DOF"
+            echo "Processing without DOF (${SCRIPTS[3]})"
+            EXEC_SCRIPT=${SCRIPTS[3]}
+            if [[ -e "$SCRIPT_PATH/${SCRIPTS[3]}" ]]; then
+                EXEC_SCRIPT=${SCRIPTS[3]}
+                echo "Script '$EXEC_SCRIPT' have been found"
+            else
+                echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+            fi
             ;;
         ("$((2#0000))")
-            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no images detected, please check your '/RAW' folder and/or the configuration of the utility.${NORMAL}"
+            echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no images detected, please check your '/RAW' folder and/or the configuration file of this program.${NORMAL}"
             ;;
         (*)
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} unknown error.${NORMAL}"
             ;;
     esac
-}
-
-script_language() {
-    echo "Script language"
-    nb_fr=0
-    nb_en=0
-    for f in $(ls "$SCRIPT_PATH"); do
-        if [[ "${SCRIPTS_fr[*]}" =~ "$f" ]]; then
-            echo "Script Fr -> $f"
-            nb_fr=$((nb_fr+1))
-        elif [[ "${SCRIPTS_en[*]}" =~ "$f" ]]; then
-            echo "Script EN -> $f"
-            nb_en=$((nb_en+1))
-        else
-            echo "Another script: $f"
-        fi
-    done
-    if [[ nb_fr -ge nb_en ]]; then
-        SCRIPTS=${SCRIPTS_fr[*]}
-    else
-        SCRIPTS=${SCRIPTS_en[*]}
-    fi
-    echo "$nb_fr, $nb_en : ${SCRIPTS[*]}"
 }
 
 # --- UNDO SECTION --- #
