@@ -38,6 +38,7 @@ SCRIPT_PATH="../Resources/share/siril/scripts"
 SCRIPTS_fr=( "Couleur_Pre-traitement.ssf" "Couleur_Pre-traitement_SansFlat.ssf" "Couleur_Pre-traitement_SansDark.ssf" "Couleur_Pre-traitement_SansDOF.ssf" )
 SCRIPTS_en=( "OSC_Preprocessing.ssf" "OSC_Preprocessing_WithoutFlat.ssf" "OSC_Preprocessing_WithoutDark.ssf" "OSC_Preprocessing_WithoutDBF.ssf" )
 SCRIPTS=$SCRIPTS_fr
+SCRIPT_FOLDERS_NAMES=("offsets" "darks" "flats" "brutes")
 EXEC_SCRIPT="${SCRIPTS[0]}"
 
 check_dependencies() { # Function that will if all the dépendencies are available
@@ -531,6 +532,8 @@ biases(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[0]}/"
         done
+        prefix="$BASE_PATH/${FOLDERS_NAMES[0]}/"
+        sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_biases.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#0100))"
     else
         echo "No file to move"
@@ -572,6 +575,8 @@ flats(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[2]}/"
         done
+        prefix="$BASE_PATH/${FOLDERS_NAMES[2]}/"
+        sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_flats.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#0010))"
     else
         echo "No file to move"
@@ -671,6 +676,8 @@ lights(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[3]}/"
         done
+        prefix="$BASE_PATH/${FOLDERS_NAMES[3]}/"
+        sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_lights.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#0001))"
     else
         echo "No file to move"
@@ -709,6 +716,8 @@ darks(){
             overwrite "${line}..."
             mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[1]}/"
         done
+        prefix="$BASE_PATH/${FOLDERS_NAMES[1]}/"
+        sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_darks.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#1000))"
     else
         echo "No file to move"
@@ -775,8 +784,10 @@ script_language() {
     done
     if [[ nb_fr -ge nb_en ]]; then
         SCRIPTS=(${SCRIPTS_fr[*]})
+        SCRIPT_FOLDERS_NAMES=("offsets" "darks" "flats" "brutes")
     else
         SCRIPTS=(${SCRIPTS_en[*]})
+        SCRIPT_FOLDERS_NAMES=("biases" "darks" "flats" "lights")
     fi
 }
 
@@ -852,6 +863,41 @@ which_script() {
     esac
 }
 
+init_script_exec() {
+    echo "Initialization of the folders befor the execution of the SiriL script: '$EXEC_SCRIPT'"
+    # rename 'biases'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[0]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[0]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_biases.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[0]}/${SCRIPT_FOLDERS_NAMES[0]}/g" "$TEMP_PATH/temp_biases.txt"
+    fi
+    
+    # rename 'darks'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[1]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[1]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_darks.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[1]}/${SCRIPT_FOLDERS_NAMES[1]}/g" "$TEMP_PATH/temp_darks.txt"
+    fi
+    
+    # rename 'flats'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[2]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[2]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_flats.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[2]}/${SCRIPT_FOLDERS_NAMES[2]}/g" "$TEMP_PATH/temp_flats.txt"
+    fi
+    
+    # rename 'lights'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[3]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[3]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_lights.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[3]}/${SCRIPT_FOLDERS_NAMES[3]}/g" "$TEMP_PATH/temp_lights.txt"
+    fi
+}
+
 # --- UNDO SECTION --- #
 undo_process() { # Function to undo the previous classification
     start_upr=`gdate +%s.%3N`
@@ -876,8 +922,8 @@ undo_process() { # Function to undo the previous classification
         lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
-            overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[0]}/${line}" "$BASE_PATH/RAW/"
+            overwrite "${line##*/}..."
+            mv "${line}" "$BASE_PATH/RAW/"
             nb_files_b=$((nb_files_b+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -892,8 +938,8 @@ undo_process() { # Function to undo the previous classification
         lines=$(cat "$TEMP_PATH/temp_flats.txt")
         for line in $lines
         do
-            overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[2]}/${line}" "$BASE_PATH/RAW/"
+            overwrite "${line##*/}..."
+            mv "${line}" "$BASE_PATH/RAW/"
             nb_files_f=$((nb_files_f+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -908,8 +954,8 @@ undo_process() { # Function to undo the previous classification
         lines=$(cat "$TEMP_PATH/temp_darks.txt")
         for line in $lines
         do
-            overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[1]}/${line}" "$BASE_PATH/RAW/"
+            overwrite "${line##*/}..."
+            mv "${line}" "$BASE_PATH/RAW/"
             nb_files_d=$((nb_files_d+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -924,8 +970,8 @@ undo_process() { # Function to undo the previous classification
         lines=$(cat "$TEMP_PATH/temp_lights.txt")
         for line in $lines
         do
-            overwrite "${line}..."
-            mv "$BASE_PATH/${FOLDERS_NAMES[3]}/${line}" "$BASE_PATH/RAW/"
+            overwrite "${line##*/}..."
+            mv "${line}" "$BASE_PATH/RAW/"
             nb_files_l=$((nb_files_l+1))
         done
         echo "${GREEN}done${NORMAL}"

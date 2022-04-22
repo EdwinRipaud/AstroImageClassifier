@@ -51,6 +51,8 @@ IMG_TYPE="$((2#0111))"
 echo ""
 which_script
 
+init_script_exec
+
 exit 1;
 
 # output the basis log informations
