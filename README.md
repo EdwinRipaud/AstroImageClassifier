@@ -50,11 +50,15 @@ Before classification       |      After classification
 
 ## Options:
 
-`-r`: lunch the classification process. Add the path to the RAW images directory.
-You can add -Y to process directly the images.
+`-c`: lunch the classification process. Add the path to the RAW images directory.
+
+`-s`: lunch a SiriL script based on detected images. Add the path to the
+    classified images directory.
+
+`-r`: lunch the classification process follow by a SiriL script. Add the
+    path to the RAW images directory.
 
 `-u`: undo the last process, move back the images and rotate them as before.
-You can add -Y to undo directly the last action
 
 `-p`: update parameters like classification folder names, maximum size and date
 of the temporary files, and the screen time for the action during the process.
@@ -68,8 +72,16 @@ too much space.
  
 ## Exemples:
 
-`sh AstroImageClissifier.sh -r Orion 42`: launch the classification on the images of
+`sh AstroImageClissifier.sh -c Orion 42`: launch the classification on the images of
 the 'Orion 42' folder
+
+`sh AstroImageClissifier.sh -s Orion 42`: execute a SiriL script based on image
+type found during the last classification process. This will create a ***'process'***
+folder where all the intermediate processing files are stored.
+
+`sh AstroImageClissifier.sh -r Orion 42`: launch the classification process
+followed by the appropriate SiriL script. This will produce folders for
+classified images and a ***'process'*** folder for the script intermediate files.
 
 `sh AstroImageClissifier.sh -u`: reversing the last classification process, the
 images will be placed back in the ***'RAW'*** folder as before the classification.
