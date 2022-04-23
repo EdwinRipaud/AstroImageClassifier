@@ -47,10 +47,14 @@ Your folder architecture tree need to be like this:
 				  \033[1m|\033[m		\033[2m\033[1m|\033[m	\033[2m\033[1m|->\033[m \033[1m\033[31mEmpty\033[m
  
 \033[1m\033[4mOption:\033[m
-    -r : lunch the classification process. Add the path to the RAW images
-	directory. You can add -Y to process directly the images.
+    -c : lunch the classification process. Add the path to the RAW images
+	directory.
+    -s : lunch a SiriL script based on detected images. Add the path to the
+	classified images directory.
+    -r : lunch the classification process follow by a SiriL script. Add the
+	path to the RAW images directory.
     -u : undo the last process, move back the images and rotate them as 
-	before. You can add -Y to undo directly the last action
+	before.
     -t : show the volume of the .tmp files. You can clean up the
 	files if they take too much space.
     -p : update parameters like classification folder names, maximum size
@@ -59,8 +63,18 @@ Your folder architecture tree need to be like this:
     -h : show this help page.
  
 \033[1m\033[4mExemples:\033[m
-    sh AstroImageClissifier.sh -r Orion 42
-	\033[1m-->\033[m launch the classification on the images of the 'Orion 42' folder
+    sh AstroImageClissifier.sh -c Orion 42
+	\033[1m-->\033[m launch the classification on the images of the \033[1m\033[3m'Orion 42'\033[m folder.
+ 
+    sh AstroImageClissifier.sh -s Orion 42
+	\033[1m-->\033[m execute a SiriL script based on image type found during the last
+	classification process. This will create a \033[1m\033[3m'process'\033[m folder where all
+	the intermediate processing files are stored.
+ 
+    sh AstroImageClissifier.sh -r
+	\033[1m-->\033[m launch the classification process followed by the appropriate SiriL
+	script. This will produce folders for classified images and a \033[1m\033[3m'process'\033[m
+	folder for the script intermediate files.
  
     sh AstroImageClissifier.sh -u
 	\033[1m-->\033[m reversing the last classification process, the images will be

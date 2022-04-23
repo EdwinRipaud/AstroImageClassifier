@@ -12,7 +12,6 @@
 #####################
 # TODO: lancer l'exécustion du script choisi
 # TODO: avant l'éxécution d'un script SiriL, demander une confiramtion et prévenir de l'espace que va prendre le traitement
-# TODO: ajouter/modifier les options pour que l'on puisse exécuter : une classification seule, un script siril seule (à partir des images trouvée) et une classification suivi d'un script SiriL
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
 
 
@@ -53,7 +52,7 @@ which_script
 
 init_script_exec
 
-exit 1;
+#exit 1;
 
 # output the basis log informations
 echo "Execution date: $(date)" >> "$LOG_PATH"
@@ -74,7 +73,7 @@ clean_oversize
 ############
 # - Main - #
 ############
-while getopts ":r:uthp" OPT "$@"; do
+while getopts ":c:r:suthp" OPT "$@"; do
 
     case $OPT in
         (":")
@@ -103,6 +102,30 @@ while getopts ":r:uthp" OPT "$@"; do
             echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 
+        ("c")
+            cd "$OPTARG"
+            BASE_PATH="$(pwd)"
+            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            IsPicture
+            if [ $? == 1 ];
+            then
+                help_fnc
+                printf '\n%.0s' {1..12} >> "$LOG_PATH"
+                echo "\n####################" >> "$LOG_PATH"
+                exit 1;
+            fi
+            echo "Run process in $BASE_PATH"
+            run_process
+            printf '\n%.0s' {1..4} >> "$LOG_PATH"
+            echo "\n####################" >> "$LOG_PATH"
+            which_script
+            exit 1;;
+
+        ("s")
+            echo "Option: -s"
+            echo "execution of the appropiate SiriL script"
+            exit 1;;
+
         ("r")
             cd "$OPTARG"
             BASE_PATH="$(pwd)"
@@ -119,6 +142,7 @@ while getopts ":r:uthp" OPT "$@"; do
             run_process
             printf '\n%.0s' {1..4} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
+            echo "Execution of the appropriate SiriL script:"
             which_script
             exit 1;;
 
