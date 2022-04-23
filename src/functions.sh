@@ -31,7 +31,6 @@ MAX_SIZE=20
 MAX_AGE=90
 SLEEP=0.05
 
-#/Applications/SiriL.app/Contents/MacOS/siril-cli -d "/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test" -s "/Applications/SiriL.app/Contents/Resources/share/siril/scripts/Couleur_Pre-traitement.ssf"
 IMG_TYPE="$((2#0000))" # (Dark, Offset, Flats, Lights)
 SIRIL_PATH=""
 SCRIPT_PATH="../Resources/share/siril/scripts"
@@ -799,8 +798,10 @@ which_script() {
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[0]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[0]}
                 echo "Script '$EXEC_SCRIPT' have been found"
+                return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+                return 1;
             fi
             ;;
         ("$((2#0111))")
@@ -809,14 +810,21 @@ which_script() {
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[2]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[2]}
                 echo "Script '$EXEC_SCRIPT' have been found"
+                return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+                return 0;
             fi
             ;;
         ("$((2#1011))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}', no script correspond to this configuration.${NORMAL}"
-            echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
-            # demander un renvoie vers le script Sans DOF
+            echo "Would you like to execut the most appropriate script (Y/n): ${SCRIPTS[3]}"
+            read sure
+            if [[ $sure == "Y" || $sure == "y" ]]; then
+                return 0;
+            else
+                return 1;
+            fi
             ;;
         ("$((2#1101))")
             echo "Processing without Flats (${SCRIPTS[1]})"
@@ -824,22 +832,35 @@ which_script() {
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[1]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[1]}
                 echo "Script '$EXEC_SCRIPT' have been found"
+                return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+                return 1;
             fi
             ;;
         ("$((2#1110))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[3]}', no script correspond to this configuration.${NORMAL}"
+            return 1;
             ;;
         ("$((2#0011))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[1]}', no script correspond to this configuration.${NORMAL}"
             echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
-            # demander un renvoie vers le script Sans DOF
+            read sure
+            if [[ $sure == "Y" || $sure == "y" ]]; then
+                return 0;
+            else
+                return 1;
+            fi
             ;;
         ("$((2#0101))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[2]}', no script correspond to this configuration.${NORMAL}"
             echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
-            # demander un renvoie vers le script Sans DOF
+            read sure
+            if [[ $sure == "Y" || $sure == "y" ]]; then
+                return 0;
+            else
+                return 1;
+            fi
             ;;
         ("$((2#0110))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[3]}', no script correspond to this configuration.${NORMAL}"
@@ -850,21 +871,25 @@ which_script() {
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[3]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[3]}
                 echo "Script '$EXEC_SCRIPT' have been found"
+                return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
+                return 1;
             fi
             ;;
         ("$((2#0000))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no images detected, please check your '/RAW' folder and/or the configuration file of this program.${NORMAL}"
+            return 1;
             ;;
         (*)
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} unknown error.${NORMAL}"
+            return 1;
             ;;
     esac
 }
 
 init_script_exec() {
-    echo "Initialization of the folders befor the execution of the SiriL script: '$EXEC_SCRIPT'"
+    echo "Initialization of the folders before the execution of the SiriL script: '$EXEC_SCRIPT'"
     # rename 'biases'folder
     if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" ]]; then
         mv "$BASE_PATH/${FOLDERS_NAMES[0]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[0]}"
@@ -897,6 +922,19 @@ init_script_exec() {
         sed -i '' -e "s/${FOLDERS_NAMES[3]}/${SCRIPT_FOLDERS_NAMES[3]}/g" "$TEMP_PATH/temp_lights.txt"
     fi
 }
+
+run_script() { # Global function that execute SiriL script
+    echo "Running Script ..."
+    script_language
+    which_script
+    if [[ "$?" = 0 ]]; then
+        init_script_exec
+        "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT"  # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
+    else
+        echo "Finito !!!"
+    fi
+}
+
 
 # --- UNDO SECTION --- #
 undo_process() { # Function to undo the previous classification

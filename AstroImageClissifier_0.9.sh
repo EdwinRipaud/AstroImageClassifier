@@ -10,9 +10,9 @@
 #####################
 # - Next features - #
 #####################
-# TODO: lancer l'exécustion du script choisi
 # TODO: avant l'éxécution d'un script SiriL, demander une confiramtion et prévenir de l'espace que va prendre le traitement
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
+# TODO: ajouter un paramètre verbose pour contrôler la sortie écrite lors de l'exécition d'un script. Si verbose=0, alors script_out > "/dev/null"
 
 
 ##############
@@ -43,15 +43,15 @@ TODAY="$(date +%s)"
 
 check_dependencies
 
-echo ""
-script_language
-
-IMG_TYPE="$((2#0111))"
-echo ""
-which_script
-
-init_script_exec
-
+#echo ""
+#script_language
+#
+#IMG_TYPE="$((2#0111))"
+#echo ""
+#which_script
+#
+#init_script_exec
+#
 #exit 1;
 
 # output the basis log informations
@@ -77,29 +77,33 @@ while getopts ":c:r:suthp" OPT "$@"; do
 
     case $OPT in
         (":")
-            echo "Wait, where is the directory to classify???"
-            read -p "Enter the folder to be filed: " OPTARG
-            while [ ! -d $OPTARG ];
-            do
-                echo "This is not a folder..."
+            if [[ "$1" == "-r" || "$1" == "-c" ]]; then
+                echo "Wait, where is the directory to classify???"
                 read -p "Enter the folder to be filed: " OPTARG
-            done
-
-            cd "$OPTARG"
-            BASE_PATH="$(pwd)"
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
-            IsPicture
-            if [ $? == 1 ];
-            then
-                help_fnc
-                printf '\n%.0s' {1..12} >> "$LOG_PATH"
+                while [ ! -d "$OPTARG" ];
+                do
+                    echo "This is not a folder..."
+                    read -p "Enter the folder to be filed: " OPTARG
+                done
+                cd "$OPTARG"
+                BASE_PATH="$(pwd)"
+                echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+                IsPicture
+                if [ "$?" == 1 ];
+                then
+                    help_fnc
+                    printf '\n%.0s' {1..12} >> "$LOG_PATH"
+                    echo "\n####################" >> "$LOG_PATH"
+                    exit 1;
+                fi
+                echo "Run process in $BASE_PATH"
+                run_process
+                if [[ "$1" == "-r" ]]; then
+                    run_script
+                fi
+                printf '\n%.0s' {1..4} >> "$LOG_PATH"
                 echo "\n####################" >> "$LOG_PATH"
-                exit 1;
             fi
-            echo "Run process in $BASE_PATH"
-            run_process
-            printf '\n%.0s' {1..4} >> "$LOG_PATH"
-            echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 
         ("c")
@@ -118,12 +122,11 @@ while getopts ":c:r:suthp" OPT "$@"; do
             run_process
             printf '\n%.0s' {1..4} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
-            which_script
             exit 1;;
 
         ("s")
             echo "Option: -s"
-            echo "execution of the appropiate SiriL script"
+            run_script
             exit 1;;
 
         ("r")
