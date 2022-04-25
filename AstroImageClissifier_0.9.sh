@@ -12,7 +12,8 @@
 #####################
 # TODO: avant l'éxécution d'un script SiriL, demander une confiramtion et prévenir de l'espace que va prendre le traitement
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
-# TODO: ajouter un paramètre verbose pour contrôler la sortie écrite lors de l'exécition d'un script. Si verbose=0, alors script_out > "/dev/null"
+
+# TODO: prendre des screen du finder pour mettre dans le README.md pour visualiser l'arrangement des dossiers avant, après classification et après un script
 
 
 ##############
@@ -146,7 +147,7 @@ while getopts ":c:r:suthp" OPT "$@"; do
             printf '\n%.0s' {1..4} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
             echo "Execution of the appropriate SiriL script:"
-            which_script
+            run_script
             exit 1;;
 
         ("u")

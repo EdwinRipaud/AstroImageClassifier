@@ -30,6 +30,7 @@ ORIENTATION="Horizontal (normal)"
 MAX_SIZE=20
 MAX_AGE=90
 SLEEP=0.05
+VERBOSE=0
 
 IMG_TYPE="$((2#0000))" # (Dark, Offset, Flats, Lights)
 SIRIL_PATH=""
@@ -169,6 +170,9 @@ load_param() { # Function that load parameters from the .config file and store t
                     ;;
                 ("8- ")
                     SLEEP=$(echo "${line#*: }/1000" | bc -l)
+                    ;;
+                ("9- ")
+                    VERBOSE="${line#*: }"
                     ;;
                 (*)
                     echo "Error";;
@@ -364,7 +368,7 @@ update_param() { # Global function to walk through parameters
                     echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
                 fi
                 ;;
-            ("9")
+            ("8")
                 echo "\n${BOLD}${UNDERLINED}Overwrite screen time (in ms)${NORMAL}"
                 actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "8- O*")"
                 echo "Actual value: : ${BOLD}${actual#*: } ms${NORMAL}"
@@ -377,6 +381,21 @@ update_param() { # Global function to walk through parameters
                     echo "${GREEN}done${NORMAL}"
                 else
                     echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} not a number.${NORMAL}"
+                fi
+                ;;
+            ("9")
+                echo "\n${BOLD}${UNDERLINED}Verbose output (1 = True / 0 = False)${NORMAL}"
+                actual="$(echo "$(cat "$ROOT_PATH/src/parameters.config")" | grep "9- V*")"
+                echo "Actual value: : ${BOLD}${actual#*: }${NORMAL}"
+                echo "Enter the new verbose value (1 = True / 0 = False):"
+                read newArg
+                re='^[0-9]+$'
+                if [[ $newArg =~ $re ]]; then
+                    echo "\nNew verbose value saved as: ${UNDERLINED}$newArg${NORMAL}"
+                    write_param "9- " "${actual#*: }" "$newArg"
+                    echo "${GREEN}done${NORMAL}"
+                else
+                    echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} invalid argument.${NORMAL}"
                 fi
                 ;;
             ("reset")
@@ -889,9 +908,9 @@ which_script() {
 }
 
 init_script_exec() {
-    echo "Initialization of the folders before the execution of the SiriL script: '$EXEC_SCRIPT'"
+    echo "Initialization of the folders before the execution of the SiriL script:\n\t'$EXEC_SCRIPT'"
     # rename 'biases'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" && ! "${FOLDERS_NAMES[0]}" == "${SCRIPT_FOLDERS_NAMES[0]}" ]]; then
         mv "$BASE_PATH/${FOLDERS_NAMES[0]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[0]}"
     fi
     if [[ -e "$TEMP_PATH/temp_biases.txt" ]]; then
@@ -899,7 +918,7 @@ init_script_exec() {
     fi
     
     # rename 'darks'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" && ! "${FOLDERS_NAMES[1]}" == "${SCRIPT_FOLDERS_NAMES[1]}" ]]; then
         mv "$BASE_PATH/${FOLDERS_NAMES[1]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[1]}"
     fi
     if [[ -e "$TEMP_PATH/temp_darks.txt" ]]; then
@@ -907,7 +926,7 @@ init_script_exec() {
     fi
     
     # rename 'flats'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" && ! "${FOLDERS_NAMES[2]}" == "${SCRIPT_FOLDERS_NAMES[2]}" ]]; then
         mv "$BASE_PATH/${FOLDERS_NAMES[2]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[2]}"
     fi
     if [[ -e "$TEMP_PATH/temp_flats.txt" ]]; then
@@ -915,7 +934,7 @@ init_script_exec() {
     fi
     
     # rename 'lights'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" ]]; then
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" && ! "${FOLDERS_NAMES[3]}" == "${SCRIPT_FOLDERS_NAMES[3]}" ]]; then
         mv "$BASE_PATH/${FOLDERS_NAMES[3]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[3]}"
     fi
     if [[ -e "$TEMP_PATH/temp_lights.txt" ]]; then
@@ -929,7 +948,11 @@ run_script() { # Global function that execute SiriL script
     which_script
     if [[ "$?" = 0 ]]; then
         init_script_exec
-        "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT"  # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
+        if [[ "$VERBOSE" = 1 ]]; then
+            "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT"  # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
+        else
+            "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT" > "/dev/null" # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
+        fi
     else
         echo "Finito !!!"
     fi
