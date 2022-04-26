@@ -10,7 +10,7 @@
 #####################
 # - Next features - #
 #####################
-# TODO: avant l'éxécution d'un script SiriL, demander une confiramtion et prévenir de l'espace que va prendre le traitement
+# TODO: Mettre en forme les sorties dans le termianl pour le partie d'execution des scripts.
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
 
 # TODO: prendre des screen du finder pour mettre dans le README.md pour visualiser l'arrangement des dossiers avant, après classification et après un script
@@ -45,13 +45,7 @@ TODAY="$(date +%s)"
 check_dependencies
 
 #echo ""
-#script_language
-#
-#IMG_TYPE="$((2#0111))"
-#echo ""
-#which_script
-#
-#init_script_exec
+#how_much_space
 #
 #exit 1;
 
@@ -146,7 +140,6 @@ while getopts ":c:r:suthp" OPT "$@"; do
             run_process
             printf '\n%.0s' {1..4} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
-            echo "Execution of the appropriate SiriL script:"
             run_script
             exit 1;;
 
