@@ -915,39 +915,45 @@ which_script() {
     esac
 }
 
-init_script_exec() {
-    echo "Initialization of the folders before the execution of the SiriL script:\n\t'$EXEC_SCRIPT'"
-    # rename 'biases'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" && ! "${FOLDERS_NAMES[0]}" == "${SCRIPT_FOLDERS_NAMES[0]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[0]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[0]}"
+which_image_type() {
+    echo "which image type"
+    # count 'darks'images
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" ]]; then
+        nb_darks=$(ls "$BASE_PATH/${FOLDERS_NAMES[1]}" | wc -l | xargs)
+        NB_DARKS=$nb_darks
+        if [[ $NB_DARKS != 0 ]]; then
+            IMG_TYPE="$(($IMG_TYPE | 2#1000))"
+            echo "darks: $NB_DARKS"
+        fi
     fi
-    if [[ -e "$TEMP_PATH/temp_biases.txt" ]]; then
-        sed -i '' -e "s/${FOLDERS_NAMES[0]}/${SCRIPT_FOLDERS_NAMES[0]}/g" "$TEMP_PATH/temp_biases.txt"
+    # count 'biases'image
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" ]]; then
+        nb_biases=$(ls "$BASE_PATH/${FOLDERS_NAMES[0]}" | wc -l | xargs)
+        NB_BIASES=$nb_biases
+        if [[ $NB_BIASES != 0 ]]; then
+            IMG_TYPE="$(($IMG_TYPE | 2#0100))"
+            echo "biases: $NB_BIASES"
+        fi
     fi
-    
-    # rename 'darks'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" && ! "${FOLDERS_NAMES[1]}" == "${SCRIPT_FOLDERS_NAMES[1]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[1]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[1]}"
+    # count 'flats'image
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" ]]; then
+        nb_flats=$(ls "$BASE_PATH/${FOLDERS_NAMES[2]}" | wc -l | xargs)
+        NB_FLATS=$nb_flats
+        if [[ $NB_FLATS != 0 ]]; then
+            IMG_TYPE="$(($IMG_TYPE | 2#0010))"
+            echo "flats: $NB_FLATS"
+        fi
     fi
-    if [[ -e "$TEMP_PATH/temp_darks.txt" ]]; then
-        sed -i '' -e "s/${FOLDERS_NAMES[1]}/${SCRIPT_FOLDERS_NAMES[1]}/g" "$TEMP_PATH/temp_darks.txt"
+    # count 'lights'image
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" ]]; then
+        nb_lights=$(ls "$BASE_PATH/${FOLDERS_NAMES[3]}" | wc -l | xargs)
+        NB_LIGHTS=$nb_lights
+        if [[ $NB_LIGHTS != 0 ]]; then
+            IMG_TYPE="$(($IMG_TYPE | 2#0001))"
+            echo "lights: $NB_LIGHTS"
+        fi
     fi
-    
-    # rename 'flats'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" && ! "${FOLDERS_NAMES[2]}" == "${SCRIPT_FOLDERS_NAMES[2]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[2]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[2]}"
-    fi
-    if [[ -e "$TEMP_PATH/temp_flats.txt" ]]; then
-        sed -i '' -e "s/${FOLDERS_NAMES[2]}/${SCRIPT_FOLDERS_NAMES[2]}/g" "$TEMP_PATH/temp_flats.txt"
-    fi
-    
-    # rename 'lights'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" && ! "${FOLDERS_NAMES[3]}" == "${SCRIPT_FOLDERS_NAMES[3]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[3]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[3]}"
-    fi
-    if [[ -e "$TEMP_PATH/temp_lights.txt" ]]; then
-        sed -i '' -e "s/${FOLDERS_NAMES[3]}/${SCRIPT_FOLDERS_NAMES[3]}/g" "$TEMP_PATH/temp_lights.txt"
-    fi
+    echo "Image type: $IMG_TYPE"
 }
 
 volume_calculation(){
@@ -992,6 +998,41 @@ how_much_space() {
         count=$((count+1))
     done
     echo "Process size: $PROCESS_SIZE ${UNITS[$count]}"
+}
+
+init_script_exec() {
+    echo "Initialization of the folders before the execution of the SiriL script:\n\t'$EXEC_SCRIPT'"
+    # rename 'biases'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" && ! "${FOLDERS_NAMES[0]}" == "${SCRIPT_FOLDERS_NAMES[0]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[0]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[0]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_biases.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[0]}/${SCRIPT_FOLDERS_NAMES[0]}/g" "$TEMP_PATH/temp_biases.txt"
+    fi
+    
+    # rename 'darks'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" && ! "${FOLDERS_NAMES[1]}" == "${SCRIPT_FOLDERS_NAMES[1]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[1]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[1]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_darks.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[1]}/${SCRIPT_FOLDERS_NAMES[1]}/g" "$TEMP_PATH/temp_darks.txt"
+    fi
+    
+    # rename 'flats'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" && ! "${FOLDERS_NAMES[2]}" == "${SCRIPT_FOLDERS_NAMES[2]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[2]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[2]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_flats.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[2]}/${SCRIPT_FOLDERS_NAMES[2]}/g" "$TEMP_PATH/temp_flats.txt"
+    fi
+    
+    # rename 'lights'folder
+    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" && ! "${FOLDERS_NAMES[3]}" == "${SCRIPT_FOLDERS_NAMES[3]}" ]]; then
+        mv "$BASE_PATH/${FOLDERS_NAMES[3]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[3]}"
+    fi
+    if [[ -e "$TEMP_PATH/temp_lights.txt" ]]; then
+        sed -i '' -e "s/${FOLDERS_NAMES[3]}/${SCRIPT_FOLDERS_NAMES[3]}/g" "$TEMP_PATH/temp_lights.txt"
+    fi
 }
 
 run_script() { # Global function that execute SiriL script

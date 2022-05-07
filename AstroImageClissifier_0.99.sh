@@ -14,7 +14,7 @@
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
 
 # TODO: prendre des screen du finder pour mettre dans le README.md pour visualiser l'arrangement des dossiers avant, après classification et après un script
-
+# TODO: changer l'algo de détection des darks / lights en utilisant la valeur moyenne des pixels avec magick identify, si possible trouver un moyen de l'accélérer.
 
 ##############
 # - Issues - #
@@ -38,14 +38,18 @@ if [ -e "$TEMP_PATH/AutoClassifier.log" ]; then
 else
     BASE_PATH="$ROOT_PATH"
 fi
+#BASE_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test"
 
 LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
 
 check_dependencies
 
-#echo ""
-#how_much_space
+#echo "$BASE_PATH"
+#load_param
+#echo "$IMG_TYPE"
+#which_image_type
+#echo "$IMG_TYPE"
 #
 #exit 1;
 
@@ -120,7 +124,7 @@ while getopts ":c:r:suthp" OPT "$@"; do
             exit 1;;
 
         ("s")
-            echo "Option: -s"
+            which_image_type
             run_script
             exit 1;;
 
