@@ -10,7 +10,7 @@
 #####################
 # - Next features - #
 #####################
-# TODO: Mettre en forme les sorties dans le termianl pour le partie d'execution des scripts.
+# TODO: valider la prédiction du volume de données de traitement
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
 
 # TODO: prendre des screen du finder pour mettre dans le README.md pour visualiser l'arrangement des dossiers avant, après classification et après un script
@@ -19,6 +19,7 @@
 ##############
 # - Issues - #
 ##############
+# TODO: erreur de BASE_PATH lors de l'abandon de script
 
 
 #######################
@@ -38,7 +39,7 @@ if [ -e "$TEMP_PATH/AutoClassifier.log" ]; then
 else
     BASE_PATH="$ROOT_PATH"
 fi
-#BASE_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test"
+BASE_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/M51 (Galaxie du Tourbillon) - 2022:05:07 - Chartres-de-Bretagne"
 
 LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
@@ -47,9 +48,10 @@ check_dependencies
 
 #echo "$BASE_PATH"
 #load_param
-#echo "$IMG_TYPE"
-#which_image_type
-#echo "$IMG_TYPE"
+#
+#how_much_space
+#
+#echo "$IMG_SIZE"
 #
 #exit 1;
 
@@ -124,6 +126,7 @@ while getopts ":c:r:suthp" OPT "$@"; do
             exit 1;;
 
         ("s")
+            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
             which_image_type
             run_script
             exit 1;;

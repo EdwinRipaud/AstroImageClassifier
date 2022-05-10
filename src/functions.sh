@@ -820,11 +820,11 @@ script_language() {
 which_script() {
     case "$(($IMG_TYPE))" in # (Dark, Offset, Flats, Lights)
         ("$((2#1111))")
-            echo "Processing DOF + Lights (${SCRIPTS[0]})"
+            echo "Processing DOF + Lights (${BOLD}${ITALIC}${SCRIPTS[0]}${NORMAL})"
             EXEC_SCRIPT=${SCRIPTS[0]}
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[0]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[0]}
-                echo "Script '$EXEC_SCRIPT' have been found"
+                echo "(OK) Script found"
                 return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
@@ -832,11 +832,11 @@ which_script() {
             fi
             ;;
         ("$((2#0111))")
-            echo "Processing without Darks (${SCRIPTS[2]})"
+            echo "Processing without Darks (${BOLD}${ITALIC}${SCRIPTS[2]}${NORMAL})"
             EXEC_SCRIPT=${SCRIPTS[2]}
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[2]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[2]}
-                echo "Script '$EXEC_SCRIPT' have been found"
+                echo "(OK) Script found"
                 return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
@@ -845,20 +845,21 @@ which_script() {
             ;;
         ("$((2#1011))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}', no script correspond to this configuration.${NORMAL}"
-            echo "Would you like to execut the most appropriate script (Y/n): ${SCRIPTS[3]}"
+            echo "Would you like to execute the most appropriate script (Y/n): ${SCRIPTS[3]}"
             read sure
             if [[ $sure == "Y" || $sure == "y" ]]; then
+                EXEC_SCRIPT=${SCRIPTS[3]}
                 return 0;
             else
                 return 1;
             fi
             ;;
         ("$((2#1101))")
-            echo "Processing without Flats (${SCRIPTS[1]})"
+            echo "Processing without Flats (${BOLD}${ITALIC}${SCRIPTS[1]}${NORMAL})"
             EXEC_SCRIPT=${SCRIPTS[1]}
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[1]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[1]}
-                echo "Script '$EXEC_SCRIPT' have been found"
+                echo "(OK) Script found"
                 return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
@@ -871,9 +872,10 @@ which_script() {
             ;;
         ("$((2#0011))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[1]}', no script correspond to this configuration.${NORMAL}"
-            echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
+            echo "Would you like to execute the most appropriate script: ${SCRIPTS[3]}"
             read sure
             if [[ $sure == "Y" || $sure == "y" ]]; then
+                EXEC_SCRIPT=${SCRIPTS[3]}
                 return 0;
             else
                 return 1;
@@ -881,9 +883,10 @@ which_script() {
             ;;
         ("$((2#0101))")
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[2]}', no script correspond to this configuration.${NORMAL}"
-            echo "Would you like to execut the most appropriate script: ${SCRIPTS[3]}"
+            echo "Would you like to execute the most appropriate script: ${SCRIPTS[3]}"
             read sure
             if [[ $sure == "Y" || $sure == "y" ]]; then
+                EXEC_SCRIPT=${SCRIPTS[3]}
                 return 0;
             else
                 return 1;
@@ -893,11 +896,11 @@ which_script() {
             echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} no '${FOLDERS_NAMES[0]}' and '${FOLDERS_NAMES[3]}', no script correspond to this configuration.${NORMAL}"
             ;;
         ("$((2#0001))")
-            echo "Processing without DOF (${SCRIPTS[3]})"
+            echo "Processing without DOF (${BOLD}${ITALIC}${SCRIPTS[3]}${NORMAL})"
             EXEC_SCRIPT=${SCRIPTS[3]}
             if [[ -e "$SCRIPT_PATH/${SCRIPTS[3]}" ]]; then
                 EXEC_SCRIPT=${SCRIPTS[3]}
-                echo "Script '$EXEC_SCRIPT' have been found"
+                echo "(OK) Script found"
                 return 0;
             else
                 echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED}No correspondance found for '$EXEC_SCRIPT' script, please check your SiriL scripts or download it from: ${UNDERLINED}free-astro.org/index.php?title=Siril:scripts${NORMAL}"
@@ -916,14 +919,12 @@ which_script() {
 }
 
 which_image_type() {
-    echo "which image type"
     # count 'darks'images
     if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" ]]; then
         nb_darks=$(ls "$BASE_PATH/${FOLDERS_NAMES[1]}" | wc -l | xargs)
         NB_DARKS=$nb_darks
         if [[ $NB_DARKS != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#1000))"
-            echo "darks: $NB_DARKS"
         fi
     fi
     # count 'biases'image
@@ -932,7 +933,6 @@ which_image_type() {
         NB_BIASES=$nb_biases
         if [[ $NB_BIASES != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#0100))"
-            echo "biases: $NB_BIASES"
         fi
     fi
     # count 'flats'image
@@ -941,7 +941,6 @@ which_image_type() {
         NB_FLATS=$nb_flats
         if [[ $NB_FLATS != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#0010))"
-            echo "flats: $NB_FLATS"
         fi
     fi
     # count 'lights'image
@@ -950,29 +949,39 @@ which_image_type() {
         NB_LIGHTS=$nb_lights
         if [[ $NB_LIGHTS != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#0001))"
-            echo "lights: $NB_LIGHTS"
         fi
     fi
-    echo "Image type: $IMG_TYPE"
 }
 
 volume_calculation(){
     x=$IMG_SIZE
     case $EXEC_SCRIPT in
+        # .CR3 convert into .FIT -> 2 x X_pixel x Y_pixel x 1.01
+        # .fit convert into debayerized .fit (.fit_deb) -> 3 x .fit
         ("Couleur_Pre-traitement.ssf" | "OSC_Preprocessing.ssf")
-            PROCESS_SIZE=$(( ($NB_BIASES + 2*$NB_FLATS + $NB_DARKS + $NB_LIGHTS + 3) * $x + ($NB_LIGHTS + 1) * 3*$x ))
+            # (NB_BIASES + 1) x IMG_SIZE.fit
+            # ( NB_DARKS + 1) x IMG_SIZE.fit
+            # ( NB_FLATS + 1) x IMG_SIZE.fit + NB_FLATS x IMG_SIZE.fit_deb
+            # (  NB_LIGHTS  ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fit_deb
+            PROCESS_SIZE=$(( ($NB_BIASES + $NB_DARKS + 2*$NB_FLATS + $NB_LIGHTS + 3) * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
             ;;
         
         ("Couleur_Pre-traitement_SansFlat.ssf" | "OSC_Preprocessing_WithoutFlat.ssf")
-            PROCESS_SIZE=$(( ($NB_DARKS + 1 + $NB_LIGHTS) * $x + ($NB_LIGHTS + 1) * 3*$x ))
+            # (NB_DARKS + 1) x IMG_SIZE.fit
+            # (  NB_LIGHTS ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fit_deb
+            PROCESS_SIZE=$(( ($NB_DARKS + $NB_LIGHTS + 1) * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
             ;;
         
         ("Couleur_Pre-traitement_SansDark.ssf" | "OSC_Preprocessing_WithoutDark.ssf")
-            PROCESS_SIZE=$(( ($NB_BIASES + 2*$NB_FLATS + $NB_LIGHTS + 2) * $x +($NB_LIGHTS + 1) * 3*$x ))
+            # (NB_BIASES + 1) x IMG_SIZE.fit
+            # ( NB_FLATS + 1) x IMG_SIZE.fit + NB_FLATS x IMG_SIZE.fit_deb
+            # (  NB_LIGHTS  ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fitdeb
+            PROCESS_SIZE=$(( ($NB_BIASES + 2*$NB_FLATS + $NB_LIGHTS + 2) * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
             ;;
     
         ("Couleur_Pre-traitement_SansDOF.ssf" | "OSC_Preprocessing_WithoutDBF.ssf")
-            PROCESS_SIZE=$(( $NB_LIGHTS * $x +($NB_LIGHTS + 1) * 3*$x ))
+            # (  NB_LIGHTS  ) x IMG_SIZE.fit + NB_LIGHTS x IMG_SIZE.fit_deb
+            PROCESS_SIZE=$(( $NB_LIGHTS * $x + ($NB_LIGHTS + 1) * 3*$x ))
             ;;
     
         (*)
@@ -988,7 +997,13 @@ how_much_space() {
         sub_path="${FOLDERS_NAMES[3]}"
     fi
     first_file="$(echo "$(ls "$BASE_PATH/$sub_path" | head -n 1)")"
-    IMG_SIZE=$(echo "scale=1; "$(ls -lrt "$BASE_PATH/$sub_path/$first_file" | awk '{ total += $5 }; END { print total }')"" | bc)
+    
+    temp="$(echo "$(exiftool "$BASE_PATH/$sub_path/$first_file" | grep -w "Exif Image Width\|Exif Image Height")")" # | sed 's/.*: //'
+    X="${temp#*: }"
+    temp="${X%*: }"
+    X="${X%?Exif*}"
+    Y="$(echo "${temp#*: }")"
+    IMG_SIZE=$(( 2 * $X * $Y * 100577/100000))
     
     volume_calculation
     
@@ -997,7 +1012,7 @@ how_much_space() {
         PROCESS_SIZE=$(echo "scale=2; "$PROCESS_SIZE"/1000" | bc)
         count=$((count+1))
     done
-    echo "Process size: $PROCESS_SIZE ${UNITS[$count]}"
+    echo "${BOLD}${UNDERLINED}Process size:${NORMAL}${BOLD} $PROCESS_SIZE ${UNITS[$count]}${NORMAL}"
 }
 
 init_script_exec() {
@@ -1037,7 +1052,6 @@ init_script_exec() {
 
 run_script() { # Global function that execute SiriL script
     echo "Running Script ..."
-    echo "Execution of the appropriate SiriL script: $EXEC_SCRIPT"
     script_language
     which_script
     out="$?"
@@ -1052,8 +1066,6 @@ run_script() { # Global function that execute SiriL script
             else
                 "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT" > "/dev/null" # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
             fi
-        else
-            echo "Finito !!!"
         fi
     else
         echo "${RED}Abort process${NORMAL}"
