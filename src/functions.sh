@@ -951,6 +951,10 @@ which_image_type() {
             IMG_TYPE="$(($IMG_TYPE | 2#0001))"
         fi
     fi
+    echo "biases: $NB_BIASES"
+    echo "flats: $NB_FLATS"
+    echo "darks: $NB_DARKS"
+    echo "lights: $NB_LIGHTS"
 }
 
 volume_calculation(){
@@ -980,8 +984,8 @@ volume_calculation(){
             ;;
     
         ("Couleur_Pre-traitement_SansDOF.ssf" | "OSC_Preprocessing_WithoutDBF.ssf")
-            # (  NB_LIGHTS  ) x IMG_SIZE.fit + NB_LIGHTS x IMG_SIZE.fit_deb
-            PROCESS_SIZE=$(( $NB_LIGHTS * $x + ($NB_LIGHTS + 1) * 3*$x ))
+            # (  NB_LIGHTS  ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fit_deb
+            PROCESS_SIZE=$(( $NB_LIGHTS * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
             ;;
     
         (*)
@@ -1003,7 +1007,7 @@ how_much_space() {
     temp="${X%*: }"
     X="${X%?Exif*}"
     Y="$(echo "${temp#*: }")"
-    IMG_SIZE=$(( 2 * $X * $Y * 100577/100000))
+    IMG_SIZE=$(( 2 * $X * $Y * 100552/100000))
     
     volume_calculation
     
@@ -1055,24 +1059,24 @@ run_script() { # Global function that execute SiriL script
     script_language
     which_script
     out="$?"
-    how_much_space
-    echo "Do you want to run the SiriL script (Y/n):"
-    read sure
-    if [[ $sure == "Y" || $sure == "y" ]]; then
-        if [[ "$out" = 0 ]]; then
+    if [[ "$out" = 0 ]]; then
+        how_much_space
+        echo "Do you want to run the SiriL script (Y/n):"
+        read sure
+        if [[ $sure == "Y" || $sure == "y" ]]; then
             init_script_exec
             if [[ "$VERBOSE" = 1 ]]; then
                 "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT"  # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
             else
                 "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT" > "/dev/null" # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
             fi
+        else
+            echo "${RED}Abort process${NORMAL}"
+#            end_rp=`gdate +%s.%3N`
+#            echo "$(log_time "" $start_rp $end_rp)"
+#            log_time "Abort: run_process()" $start_rp $end_rp >> "$LOG_PATH"
+#            printf '\n%.0s' {1..7} >> "$LOG_PATH"
         fi
-    else
-        echo "${RED}Abort process${NORMAL}"
-#        end_rp=`gdate +%s.%3N`
-#        echo "$(log_time "" $start_rp $end_rp)"
-#        log_time "Abort: run_process()" $start_rp $end_rp >> "$LOG_PATH"
-#        printf '\n%.0s' {1..7} >> "$LOG_PATH"
     fi
 }
 

@@ -10,7 +10,6 @@
 #####################
 # - Next features - #
 #####################
-# TODO: valider la prédiction du volume de données de traitement
 # TODO: ajouter dans les logs les opération sur les exécution de script SiriL
 
 # TODO: prendre des screen du finder pour mettre dans le README.md pour visualiser l'arrangement des dossiers avant, après classification et après un script
@@ -35,11 +34,11 @@ fi
 TEMP_PATH="$ROOT_PATH/.tmp"
 
 if [ -e "$TEMP_PATH/AutoClassifier.log" ]; then
-    BASE_PATH="$(tail -n 25 "$TEMP_PATH/AutoClassifier.log" | grep -w "Working directory:" | sed 's/.*: //')"
+    BASE_PATH="$(tail -n 25 "$TEMP_PATH/AutoClassifier.log" | grep -w "Working directory:" | tail -1 | sed 's/.*: //')"
 else
     BASE_PATH="$ROOT_PATH"
 fi
-BASE_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/M51 (Galaxie du Tourbillon) - 2022:05:07 - Chartres-de-Bretagne"
+#BASE_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/M51 (Galaxie du Tourbillon) - 2022:05:07 - Chartres-de-Bretagne"
 
 LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
