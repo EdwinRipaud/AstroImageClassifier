@@ -120,13 +120,13 @@ log_time() { # calculates the time difference and returns the value in a string
     runtime=${runtime%.*}
     if [[ $runtime -lt 1000 ]]; then
         if [ ! -z "$1" ]; then
-            echo "$(printf "%-30s" "$1") => Runtime: $(printf "%10s" "$runtime") ms"
+            echo "$(printf "%-40s" "$1") => Runtime: $(printf "%10s" "$runtime") ms"
         else
             echo "=> Runtime: $(printf "%10s" "$runtime") ms"
         fi
     else
         if [ ! -z "$1" ]; then
-            echo "$(printf "%-30s" "$1") => Runtime: $(printf "%10s" "$(echo "scale=3; $runtime/1000" | bc -l)") s"
+            echo "$(printf "%-40s" "$1") => Runtime: $(printf "%10s" "$(echo "scale=3; $runtime/1000" | bc -l)") s"
         else
             echo "=> Runtime: $(printf "%10s" "$(echo "scale=3; $runtime/1000" | bc -l)") s"
         fi
@@ -427,7 +427,7 @@ update_param() { # Global function to walk through parameters
 
 # --- CLASSIFICATION SECTION --- #
 IsPicture(){ # Function to check if the 'RAW' directory, containing pictures, exist
-    if [ ! -d "$BASE_PATH/RAW" ];
+    if [ ! -d "$WORK_PATH/RAW" ];
     then
         echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} There is no ${ITALIC}'RAW/'${NORMAL}${RED} directory inside the specified working directory.${NORMAL}"
         echo "Please ${BOLD}check the path${NORMAL} or rename / create a ${ITALIC}'RAW'${NORMAL} directory that contain all the RAW images out of your APN."
@@ -484,9 +484,9 @@ clean_tmp() { # Function to clean the temporary files used for the previous clas
 }
 
 make_dir() { # Function to check if 'input' directory existe, otherwise create it
-    if [ ! -d "$BASE_PATH/$1" ];
+    if [ ! -d "$WORK_PATH/$1" ];
     then
-        mkdir "$BASE_PATH/$1"
+        mkdir "$WORK_PATH/$1"
     fi
 }
 
@@ -499,16 +499,16 @@ rotation() {
     ###############
     # catch and rotate all the images that aren't in Horizontal (normal) position
     echo "Search non-horizontal (normal) image"
-    prefix="$(echo "$BASE_PATH/RAW/" | sed 's_/_\\/_g')"
+    prefix="$(echo "$WORK_PATH/RAW/" | sed 's_/_\\/_g')"
     phrase="\$orientation ne \"$ORIENTATION\""
     
-    exiftool -filename -orientation -if "$phrase" -r "$BASE_PATH/RAW" | grep -w -e "File Name" -e "Orientation"  | sed 's/.*: //' >> "$TEMP_PATH/temp_rot_ori.txt"
+    exiftool -filename -orientation -if "$phrase" -r "$WORK_PATH/RAW" | grep -w -e "File Name" -e "Orientation"  | sed 's/.*: //' >> "$TEMP_PATH/temp_rot_ori.txt"
     
     if [ -s "$TEMP_PATH/temp_rot_ori.txt" ]; then
         while read -r one; do
             read -r two
-            echo "$BASE_PATH/RAW/$one" >> "$TEMP_PATH/temp_rotation.txt"
-            echo "$BASE_PATH/RAW/$one; $two" >> "$TEMP_PATH/temp_rotation_orientation.txt"
+            echo "$WORK_PATH/RAW/$one" >> "$TEMP_PATH/temp_rotation.txt"
+            echo "$WORK_PATH/RAW/$one; $two" >> "$TEMP_PATH/temp_rotation_orientation.txt"
         done < "$TEMP_PATH/temp_rot_ori.txt"
         
         echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_rotation.txt") bad rotation found.${NORMAL}"
@@ -539,7 +539,7 @@ biases(){
     ##############
     # Catch and move the biases
     echo "\nSearch for the ${FOLDERS_NAMES[0]}..."
-    exiftool -filename -if '$shutterspeed eq "1/8000"' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_biases.txt"
+    exiftool -filename -if '$shutterspeed eq "1/8000"' -r "$WORK_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_biases.txt"
     
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") ${FOLDERS_NAMES[0]} found.${NORMAL}"
     
@@ -557,9 +557,9 @@ biases(){
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[0]}/"
+            mv "$WORK_PATH/RAW/${line}" "$WORK_PATH/${FOLDERS_NAMES[0]}/"
         done
-        prefix="$BASE_PATH/${FOLDERS_NAMES[0]}/"
+        prefix="$WORK_PATH/${FOLDERS_NAMES[0]}/"
         sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_biases.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#0100))"
     else
@@ -581,7 +581,7 @@ flats(){
     #############
     # Catch and move the flats
     echo "\nSearch for the ${FOLDERS_NAMES[2]}..."
-    exiftool -filename -if '$MeasuredEV ge 10' -r "$BASE_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_flats.txt"
+    exiftool -filename -if '$MeasuredEV ge 10' -r "$WORK_PATH/RAW" | grep "File Name" | sed 's/.*: //' >> "$TEMP_PATH/temp_flats.txt"
 
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") ${FOLDERS_NAMES[2]} found.${NORMAL}"
     
@@ -600,9 +600,9 @@ flats(){
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[2]}/"
+            mv "$WORK_PATH/RAW/${line}" "$WORK_PATH/${FOLDERS_NAMES[2]}/"
         done
-        prefix="$BASE_PATH/${FOLDERS_NAMES[2]}/"
+        prefix="$WORK_PATH/${FOLDERS_NAMES[2]}/"
         sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_flats.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#0010))"
     else
@@ -634,7 +634,7 @@ catch_darks_lights(){
     CHANGE_NAME=0 # the counter for the loop
     index=0
     count=0
-    for FILE_NAME in "$BASE_PATH/RAW"/*; do # scann for all the files in the "RAW" directoy
+    for FILE_NAME in "$WORK_PATH/RAW"/*; do # scann for all the files in the "RAW" directoy
         FILE_NAME=${FILE_NAME##*/}
         NAME_array[count]="$FILE_NAME"
         count=$((count+1))
@@ -701,9 +701,9 @@ lights(){
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[3]}/"
+            mv "$WORK_PATH/RAW/${line}" "$WORK_PATH/${FOLDERS_NAMES[3]}/"
         done
-        prefix="$BASE_PATH/${FOLDERS_NAMES[3]}/"
+        prefix="$WORK_PATH/${FOLDERS_NAMES[3]}/"
         sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_lights.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#0001))"
     else
@@ -741,9 +741,9 @@ darks(){
         for line in $lines
         do
             overwrite "${line}..."
-            mv "$BASE_PATH/RAW/${line}" "$BASE_PATH/${FOLDERS_NAMES[1]}/"
+            mv "$WORK_PATH/RAW/${line}" "$WORK_PATH/${FOLDERS_NAMES[1]}/"
         done
-        prefix="$BASE_PATH/${FOLDERS_NAMES[1]}/"
+        prefix="$WORK_PATH/${FOLDERS_NAMES[1]}/"
         sed -i '' -e "s#^#${prefix}#g" "$TEMP_PATH/temp_darks.txt"
         IMG_TYPE="$(($IMG_TYPE | 2#1000))"
     else
@@ -758,8 +758,8 @@ darks(){
 
 run_process() { # Global function that classify picture
     echo "Running process ..."
-    nb_files=$(ls "$BASE_PATH/RAW" | wc -l | xargs)
-    echo "$(printf "%-30s" "Function: run_process()") -> process: $(printf "%10s" "$nb_files") files" >> "$LOG_PATH"
+    nb_files=$(ls "$WORK_PATH/RAW" | wc -l | xargs)
+    echo "$(printf "%-40s" "Function: run_process()") -> process: $(printf "%10s" "$nb_files") files" >> "$LOG_PATH"
     
     if [ $nb_files == 0 ]; then
         echo "${RED}${BOLD}${UNDERLINED}Error:${NORMAL}${RED} No files to process.${NORMAL}"
@@ -782,8 +782,8 @@ run_process() { # Global function that classify picture
             end_rp=`gdate +%s.%3N`
             echo "$(log_time "" $start_rp $end_rp)"
             log_time "run_process()" $start_rp $end_rp >> "$LOG_PATH"
-            if [[ $(ls "$BASE_PATH/RAW" | wc -l | xargs) == 0 ]]; then
-                rmdir "$BASE_PATH/RAW"
+            if [[ $(ls "$WORK_PATH/RAW" | wc -l | xargs) == 0 ]]; then
+                rmdir "$WORK_PATH/RAW"
             fi
             echo "${SOUND}"
         else
@@ -920,41 +920,37 @@ which_script() {
 
 which_image_type() {
     # count 'darks'images
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" ]]; then
-        nb_darks=$(ls "$BASE_PATH/${FOLDERS_NAMES[1]}" | wc -l | xargs)
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[1]}" ]]; then
+        nb_darks=$(ls "$WORK_PATH/${FOLDERS_NAMES[1]}" | wc -l | xargs)
         NB_DARKS=$nb_darks
         if [[ $NB_DARKS != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#1000))"
         fi
     fi
     # count 'biases'image
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" ]]; then
-        nb_biases=$(ls "$BASE_PATH/${FOLDERS_NAMES[0]}" | wc -l | xargs)
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[0]}" ]]; then
+        nb_biases=$(ls "$WORK_PATH/${FOLDERS_NAMES[0]}" | wc -l | xargs)
         NB_BIASES=$nb_biases
         if [[ $NB_BIASES != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#0100))"
         fi
     fi
     # count 'flats'image
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" ]]; then
-        nb_flats=$(ls "$BASE_PATH/${FOLDERS_NAMES[2]}" | wc -l | xargs)
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[2]}" ]]; then
+        nb_flats=$(ls "$WORK_PATH/${FOLDERS_NAMES[2]}" | wc -l | xargs)
         NB_FLATS=$nb_flats
         if [[ $NB_FLATS != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#0010))"
         fi
     fi
     # count 'lights'image
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" ]]; then
-        nb_lights=$(ls "$BASE_PATH/${FOLDERS_NAMES[3]}" | wc -l | xargs)
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[3]}" ]]; then
+        nb_lights=$(ls "$WORK_PATH/${FOLDERS_NAMES[3]}" | wc -l | xargs)
         NB_LIGHTS=$nb_lights
         if [[ $NB_LIGHTS != 0 ]]; then
             IMG_TYPE="$(($IMG_TYPE | 2#0001))"
         fi
     fi
-    echo "biases: $NB_BIASES"
-    echo "flats: $NB_FLATS"
-    echo "darks: $NB_DARKS"
-    echo "lights: $NB_LIGHTS"
 }
 
 volume_calculation(){
@@ -967,25 +963,25 @@ volume_calculation(){
             # ( NB_DARKS + 1) x IMG_SIZE.fit
             # ( NB_FLATS + 1) x IMG_SIZE.fit + NB_FLATS x IMG_SIZE.fit_deb
             # (  NB_LIGHTS  ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fit_deb
-            PROCESS_SIZE=$(( ($NB_BIASES + $NB_DARKS + 2*$NB_FLATS + $NB_LIGHTS + 3) * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
+            PROCESS_SIZE=$(( ($NB_BIASES + $NB_DARKS + 2*$NB_FLATS + $NB_LIGHTS + 3) * $x + (2*$NB_LIGHTS) * 3*$x ))
             ;;
         
         ("Couleur_Pre-traitement_SansFlat.ssf" | "OSC_Preprocessing_WithoutFlat.ssf")
             # (NB_DARKS + 1) x IMG_SIZE.fit
             # (  NB_LIGHTS ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fit_deb
-            PROCESS_SIZE=$(( ($NB_DARKS + $NB_LIGHTS + 1) * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
+            PROCESS_SIZE=$(( ($NB_DARKS + $NB_LIGHTS + 1) * $x + (2*$NB_LIGHTS) * 3*$x ))
             ;;
         
         ("Couleur_Pre-traitement_SansDark.ssf" | "OSC_Preprocessing_WithoutDark.ssf")
             # (NB_BIASES + 1) x IMG_SIZE.fit
             # ( NB_FLATS + 1) x IMG_SIZE.fit + NB_FLATS x IMG_SIZE.fit_deb
             # (  NB_LIGHTS  ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fitdeb
-            PROCESS_SIZE=$(( ($NB_BIASES + 2*$NB_FLATS + $NB_LIGHTS + 2) * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
+            PROCESS_SIZE=$(( ($NB_BIASES + 2*$NB_FLATS + $NB_LIGHTS + 2) * $x + (2*$NB_LIGHTS) * 3*$x ))
             ;;
     
         ("Couleur_Pre-traitement_SansDOF.ssf" | "OSC_Preprocessing_WithoutDBF.ssf")
             # (  NB_LIGHTS  ) x IMG_SIZE.fit + (2 x NB_LIGHTS) x IMG_SIZE.fit_deb
-            PROCESS_SIZE=$(( $NB_LIGHTS * $x + (2*$NB_LIGHTS + 1) * 3*$x ))
+            PROCESS_SIZE=$(( $NB_LIGHTS * $x + (2*$NB_LIGHTS) * 3*$x ))
             ;;
     
         (*)
@@ -996,18 +992,19 @@ volume_calculation(){
 
 how_much_space() {
     echo "Calculations for the estimation of the volume of data generated by the SiriL script"
+    start_hms=`gdate +%s.%3N`
     sub_path="${SCRIPT_FOLDERS_NAMES[3]}"
-    if [[ ! -e "$BASE_PATH/$sub_path" ]]; then
+    if [[ ! -e "$WORK_PATH/$sub_path" ]]; then
         sub_path="${FOLDERS_NAMES[3]}"
     fi
-    first_file="$(echo "$(ls "$BASE_PATH/$sub_path" | head -n 1)")"
+    first_file="$(echo "$(ls "$WORK_PATH/$sub_path" | head -n 1)")"
     
-    temp="$(echo "$(exiftool "$BASE_PATH/$sub_path/$first_file" | grep -w "Exif Image Width\|Exif Image Height")")" # | sed 's/.*: //'
+    temp="$(echo "$(exiftool "$WORK_PATH/$sub_path/$first_file" | grep -w "Exif Image Width\|Exif Image Height")")" # | sed 's/.*: //'
     X="${temp#*: }"
     temp="${X%*: }"
     X="${X%?Exif*}"
     Y="$(echo "${temp#*: }")"
-    IMG_SIZE=$(( 2 * $X * $Y * 100552/100000))
+    IMG_SIZE=$(( 2 * $X * $Y + 500000 ))  # 16 bits -> 2 octets for each pixel, times the number of pixel, plus the header size
     
     volume_calculation
     
@@ -1017,37 +1014,39 @@ how_much_space() {
         count=$((count+1))
     done
     echo "${BOLD}${UNDERLINED}Process size:${NORMAL}${BOLD} $PROCESS_SIZE ${UNITS[$count]}${NORMAL}"
+    end_hms=`gdate +%s.%3N`
+    log_time "$(printf "%-25s" "- how_much_space()") ($PROCESS_SIZE ${UNITS[$count]})" $start_hms $end_hms >> "$LOG_PATH"
 }
 
 init_script_exec() {
     echo "Initialization of the folders before the execution of the SiriL script:\n\t'$EXEC_SCRIPT'"
     # rename 'biases'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" && ! "${FOLDERS_NAMES[0]}" == "${SCRIPT_FOLDERS_NAMES[0]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[0]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[0]}"
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[0]}" && ! "${FOLDERS_NAMES[0]}" == "${SCRIPT_FOLDERS_NAMES[0]}" ]]; then
+        mv "$WORK_PATH/${FOLDERS_NAMES[0]}" "$WORK_PATH/${SCRIPT_FOLDERS_NAMES[0]}"
     fi
     if [[ -e "$TEMP_PATH/temp_biases.txt" ]]; then
         sed -i '' -e "s/${FOLDERS_NAMES[0]}/${SCRIPT_FOLDERS_NAMES[0]}/g" "$TEMP_PATH/temp_biases.txt"
     fi
     
     # rename 'darks'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" && ! "${FOLDERS_NAMES[1]}" == "${SCRIPT_FOLDERS_NAMES[1]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[1]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[1]}"
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[1]}" && ! "${FOLDERS_NAMES[1]}" == "${SCRIPT_FOLDERS_NAMES[1]}" ]]; then
+        mv "$WORK_PATH/${FOLDERS_NAMES[1]}" "$WORK_PATH/${SCRIPT_FOLDERS_NAMES[1]}"
     fi
     if [[ -e "$TEMP_PATH/temp_darks.txt" ]]; then
         sed -i '' -e "s/${FOLDERS_NAMES[1]}/${SCRIPT_FOLDERS_NAMES[1]}/g" "$TEMP_PATH/temp_darks.txt"
     fi
     
     # rename 'flats'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" && ! "${FOLDERS_NAMES[2]}" == "${SCRIPT_FOLDERS_NAMES[2]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[2]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[2]}"
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[2]}" && ! "${FOLDERS_NAMES[2]}" == "${SCRIPT_FOLDERS_NAMES[2]}" ]]; then
+        mv "$WORK_PATH/${FOLDERS_NAMES[2]}" "$WORK_PATH/${SCRIPT_FOLDERS_NAMES[2]}"
     fi
     if [[ -e "$TEMP_PATH/temp_flats.txt" ]]; then
         sed -i '' -e "s/${FOLDERS_NAMES[2]}/${SCRIPT_FOLDERS_NAMES[2]}/g" "$TEMP_PATH/temp_flats.txt"
     fi
     
     # rename 'lights'folder
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" && ! "${FOLDERS_NAMES[3]}" == "${SCRIPT_FOLDERS_NAMES[3]}" ]]; then
-        mv "$BASE_PATH/${FOLDERS_NAMES[3]}" "$BASE_PATH/${SCRIPT_FOLDERS_NAMES[3]}"
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[3]}" && ! "${FOLDERS_NAMES[3]}" == "${SCRIPT_FOLDERS_NAMES[3]}" ]]; then
+        mv "$WORK_PATH/${FOLDERS_NAMES[3]}" "$WORK_PATH/${SCRIPT_FOLDERS_NAMES[3]}"
     fi
     if [[ -e "$TEMP_PATH/temp_lights.txt" ]]; then
         sed -i '' -e "s/${FOLDERS_NAMES[3]}/${SCRIPT_FOLDERS_NAMES[3]}/g" "$TEMP_PATH/temp_lights.txt"
@@ -1056,27 +1055,38 @@ init_script_exec() {
 
 run_script() { # Global function that execute SiriL script
     echo "Running Script ..."
+    start_rs=`gdate +%s.%3N`
     script_language
     which_script
     out="$?"
     if [[ "$out" = 0 ]]; then
+        echo "$(printf "%-40s" "Function: run_script()") -> $EXEC_SCRIPT" >> "$LOG_PATH"
         how_much_space
         echo "Do you want to run the SiriL script (Y/n):"
         read sure
         if [[ $sure == "Y" || $sure == "y" ]]; then
             init_script_exec
             if [[ "$VERBOSE" = 1 ]]; then
-                "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT"  # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
+                "$SIRIL_PATH" -d "$WORK_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT"  # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
             else
-                "$SIRIL_PATH" -d "$BASE_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT" > "/dev/null" # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
+                "$SIRIL_PATH" -d "$WORK_PATH" -s "$SCRIPT_PATH/$EXEC_SCRIPT" > "/dev/null" # "siril-cli/path" -d "processing/folder/path" -s "SiriL/script/path"
             fi
+            end_rs=`gdate +%s.%3N`
+            echo "$(log_time "" $start_rs $end_rs)"
+            log_time "run_script()" $start_rs $end_rs >> "$LOG_PATH"
         else
             echo "${RED}Abort process${NORMAL}"
-#            end_rp=`gdate +%s.%3N`
-#            echo "$(log_time "" $start_rp $end_rp)"
-#            log_time "Abort: run_process()" $start_rp $end_rp >> "$LOG_PATH"
-#            printf '\n%.0s' {1..7} >> "$LOG_PATH"
+            end_rs=`gdate +%s.%3N`
+            echo "$(log_time "" $start_rs $end_rs)"
+            log_time "Abort: run_script()" $start_rs $end_rs >> "$LOG_PATH"
+            printf '\n%.0s' {1..1} >> "$LOG_PATH"
         fi
+    else
+        echo "$(printf "%-40s" "Function: run_script()") -> error: no script found" >> "$LOG_PATH"
+        end_rs=`gdate +%s.%3N`
+        echo "$(log_time "" $start_rs $end_rs)"
+        log_time "Abort: run_script()" $start_rs $end_rs >> "$LOG_PATH"
+        printf '\n%.0s' {1..1} >> "$LOG_PATH"
     fi
 }
 
@@ -1094,19 +1104,19 @@ undo_process() { # Function to undo the previous classification
     nb_files_r=0
     nb_files_tot=0
     
-    echo "${YELLOW}Working directory: ${NORMAL}${BASE_PATH}"
-    if [ ! -d "$BASE_PATH/RAW" ]; then
-        mkdir "$BASE_PATH/RAW"
+    echo "${YELLOW}Working directory: ${NORMAL}${WORK_PATH}"
+    if [ ! -d "$WORK_PATH/RAW" ]; then
+        mkdir "$WORK_PATH/RAW"
     fi
     echo "\nmove ${FOLDERS_NAMES[0]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_biases.txt") images${NORMAL}"
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[0]}" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[0]}" && -e "$TEMP_PATH/temp_biases.txt" ]]; then
         echo ""
         lines=$(cat "$TEMP_PATH/temp_biases.txt")
         for line in $lines
         do
             overwrite "${line##*/}..."
-            mv "${line}" "$BASE_PATH/RAW/"
+            mv "${line}" "$WORK_PATH/RAW/"
             nb_files_b=$((nb_files_b+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -1116,13 +1126,13 @@ undo_process() { # Function to undo the previous classification
     
     echo "\nmove ${FOLDERS_NAMES[2]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_flats.txt") images${NORMAL}"
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[2]}" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[2]}" && -e "$TEMP_PATH/temp_flats.txt" ]]; then
         echo ""
         lines=$(cat "$TEMP_PATH/temp_flats.txt")
         for line in $lines
         do
             overwrite "${line##*/}..."
-            mv "${line}" "$BASE_PATH/RAW/"
+            mv "${line}" "$WORK_PATH/RAW/"
             nb_files_f=$((nb_files_f+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -1132,13 +1142,13 @@ undo_process() { # Function to undo the previous classification
     
     echo "\nmove ${FOLDERS_NAMES[1]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_darks.txt") images${NORMAL}"
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[1]}" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[1]}" && -e "$TEMP_PATH/temp_darks.txt" ]]; then
         echo ""
         lines=$(cat "$TEMP_PATH/temp_darks.txt")
         for line in $lines
         do
             overwrite "${line##*/}..."
-            mv "${line}" "$BASE_PATH/RAW/"
+            mv "${line}" "$WORK_PATH/RAW/"
             nb_files_d=$((nb_files_d+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -1148,13 +1158,13 @@ undo_process() { # Function to undo the previous classification
 
     echo "\nmove ${FOLDERS_NAMES[3]}..."
     echo "${BLUE}$(wc -l < "$TEMP_PATH/temp_lights.txt") images${NORMAL}"
-    if [[ -d "$BASE_PATH/${FOLDERS_NAMES[3]}" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
+    if [[ -d "$WORK_PATH/${FOLDERS_NAMES[3]}" && -e "$TEMP_PATH/temp_lights.txt" ]]; then
         echo ""
         lines=$(cat "$TEMP_PATH/temp_lights.txt")
         for line in $lines
         do
             overwrite "${line##*/}..."
-            mv "${line}" "$BASE_PATH/RAW/"
+            mv "${line}" "$WORK_PATH/RAW/"
             nb_files_l=$((nb_files_l+1))
         done
         echo "${GREEN}done${NORMAL}"
@@ -1175,7 +1185,7 @@ undo_process() { # Function to undo the previous classification
     nb_files_tot=$((nb_files_b+nb_files_f+nb_files_d+nb_files_l))
     end_upr=`gdate +%s.%3N`
     echo "$(log_time "" $start_upr $end_upr)"
-    echo "$(printf "%-30s" "Function: undo_process()") -> process: $(printf "%10s" "$nb_files_tot") files" >> "$LOG_PATH"
+    echo "$(printf "%-40s" "Function: undo_process()") -> process: $(printf "%10s" "$nb_files_tot") files" >> "$LOG_PATH"
     echo "$(printf "%-15s" "- biases") ($nb_files_b)" >> "$LOG_PATH"
     echo "$(printf "%-15s" "- flats") ($nb_files_f)" >> "$LOG_PATH"
     echo "$(printf "%-15s" "- darks") ($nb_files_d)" >> "$LOG_PATH"
@@ -1184,8 +1194,8 @@ undo_process() { # Function to undo the previous classification
     log_time "undo_process()" $start_upr $end_upr >> "$LOG_PATH"
     for folders_name in "${FOLDERS_NAMES[@]}"
     do
-        if [[ -d "$BASE_PATH/$folders_name" ]]; then
-            rmdir "$BASE_PATH/$folders_name"
+        if [[ -d "$WORK_PATH/$folders_name" ]]; then
+            rmdir "$WORK_PATH/$folders_name"
         fi
     done
     echo "${SOUND}"

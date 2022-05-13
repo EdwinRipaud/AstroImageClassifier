@@ -10,15 +10,12 @@
 #####################
 # - Next features - #
 #####################
-# TODO: ajouter dans les logs les opération sur les exécution de script SiriL
-
 # TODO: prendre des screen du finder pour mettre dans le README.md pour visualiser l'arrangement des dossiers avant, après classification et après un script
 # TODO: changer l'algo de détection des darks / lights en utilisant la valeur moyenne des pixels avec magick identify, si possible trouver un moyen de l'accélérer.
 
 ##############
 # - Issues - #
 ##############
-# TODO: erreur de BASE_PATH lors de l'abandon de script
 
 
 #######################
@@ -34,18 +31,18 @@ fi
 TEMP_PATH="$ROOT_PATH/.tmp"
 
 if [ -e "$TEMP_PATH/AutoClassifier.log" ]; then
-    BASE_PATH="$(tail -n 25 "$TEMP_PATH/AutoClassifier.log" | grep -w "Working directory:" | tail -1 | sed 's/.*: //')"
+    WORK_PATH="$(tail -n 25 "$TEMP_PATH/AutoClassifier.log" | grep -w "Working directory:" | tail -1 | sed 's/.*: //')"
 else
-    BASE_PATH="$ROOT_PATH"
+    WORK_PATH="$ROOT_PATH"
 fi
-#BASE_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/M51 (Galaxie du Tourbillon) - 2022:05:07 - Chartres-de-Bretagne"
+#WORK_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test"
 
 LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
 
 check_dependencies
 
-#echo "$BASE_PATH"
+#echo "$WORK_PATH"
 #load_param
 #
 #how_much_space
@@ -86,8 +83,8 @@ while getopts ":c:r:suthp" OPT "$@"; do
                     read -p "Enter the folder to be filed: " OPTARG
                 done
                 cd "$OPTARG"
-                BASE_PATH="$(pwd)"
-                echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+                WORK_PATH="$(pwd)"
+                echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
                 IsPicture
                 if [ "$?" == 1 ];
                 then
@@ -96,7 +93,7 @@ while getopts ":c:r:suthp" OPT "$@"; do
                     echo "\n####################" >> "$LOG_PATH"
                     exit 1;
                 fi
-                echo "Run process in $BASE_PATH"
+                echo "Run process in $WORK_PATH"
                 run_process
                 if [[ "$1" == "-r" ]]; then
                     run_script
@@ -108,8 +105,8 @@ while getopts ":c:r:suthp" OPT "$@"; do
 
         ("c")
             cd "$OPTARG"
-            BASE_PATH="$(pwd)"
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            WORK_PATH="$(pwd)"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             IsPicture
             if [ $? == 1 ];
             then
@@ -118,22 +115,24 @@ while getopts ":c:r:suthp" OPT "$@"; do
                 echo "\n####################" >> "$LOG_PATH"
                 exit 1;
             fi
-            echo "Run process in $BASE_PATH"
+            echo "Run process in $WORK_PATH"
             run_process
             printf '\n%.0s' {1..4} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 
         ("s")
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             which_image_type
             run_script
+            printf '\n%.0s' {1..10} >> "$LOG_PATH"
+            echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 
         ("r")
             cd "$OPTARG"
-            BASE_PATH="$(pwd)"
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            WORK_PATH="$(pwd)"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             IsPicture
             if [ $? == 1 ];
             then
@@ -142,16 +141,16 @@ while getopts ":c:r:suthp" OPT "$@"; do
                 echo "\n####################" >> "$LOG_PATH"
                 exit 1;
             fi
-            echo "Run process in $BASE_PATH"
+            echo "Run process in $WORK_PATH"
             run_process
-            printf '\n%.0s' {1..4} >> "$LOG_PATH"
-            echo "\n####################" >> "$LOG_PATH"
             run_script
+            printf '\n%.0s' {1..1} >> "$LOG_PATH"
+            echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 
         ("u")
             echo "${BOLD}${UNDERLINED}Undo previous process${NORMAL}\n"
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             echo "Do you want to undo the process (Y/n):"
             read sure
             if [[ $sure == "Y" || $sure == "y" ]]; then
@@ -166,7 +165,7 @@ while getopts ":c:r:suthp" OPT "$@"; do
 
         ("t")
             echo "${BOLD}${UNDERLINED}${TITLE}Preview temporary files${NORMAL}\n"
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             temp_check
             echo "\n${RED}${BOLD}${UNDERLINED}${BLINKING}!!! Warning !!!${NORMAL}${RED}\nThis operation cannot be cancelled !${NORMAL}"
             echo "Do you want to clean up the temporary files (Y/n)?"
@@ -186,21 +185,21 @@ while getopts ":c:r:suthp" OPT "$@"; do
 
         ("p")
             echo "${BOLD}${UNDERLINED}Update parameters${NORMAL}\n"
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             update_param
             printf '\n%.0s' {1..12} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 
         ("h" | "?")
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             help_fnc
             printf '\n%.0s' {1..12} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
             exit 1;;
 
         (*)
-            echo "Working directory: $BASE_PATH" >> "$LOG_PATH"
+            echo "Working directory: $WORK_PATH" >> "$LOG_PATH"
             help_fnc
             printf '\n%.0s' {1..12} >> "$LOG_PATH"
             echo "\n####################" >> "$LOG_PATH"
