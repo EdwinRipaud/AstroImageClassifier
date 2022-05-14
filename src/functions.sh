@@ -50,7 +50,7 @@ NB_BIASES=0
 NB_FLATS=0
 NB_LIGHTS=0
 
-check_dependencies() { # Function that will if all the dépendencies are available
+check_dependencies() { # Function that will check if all the dépendencies are available
     # check for Siril command line tool
     case "$OSTYPE" in
         (darwin*)

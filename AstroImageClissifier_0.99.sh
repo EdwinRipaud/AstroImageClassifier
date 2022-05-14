@@ -16,6 +16,7 @@
 ##############
 # - Issues - #
 ##############
+# TODO: Renommer l'ensemble du projet, car faute de typo dans le nom : AstroImageClassifier
 
 
 #######################
@@ -42,12 +43,17 @@ TODAY="$(date +%s)"
 
 check_dependencies
 
-#echo "$WORK_PATH"
-#load_param
-#
-#how_much_space
-#
-#echo "$IMG_SIZE"
+            
+#echo "Wait, where is the directory to classify???"
+#read -p "Enter the folder to be filed: " OPTARG
+#while [ ! -d "$OPTARG" ];
+#do
+#    echo "($OPTARG) is not a folder..."
+#    if [ "$OPTARG" == "q" ]; then
+#        exit 1;
+#    fi
+#    read -p "Enter the folder to be filed: " OPTARG
+#done
 #
 #exit 1;
 
@@ -75,12 +81,17 @@ while getopts ":c:r:suthp" OPT "$@"; do
     case $OPT in
         (":")
             if [[ "$1" == "-r" || "$1" == "-c" ]]; then
-                echo "Wait, where is the directory to classify???"
-                read -p "Enter the folder to be filed: " OPTARG
-                while [ ! -d "$OPTARG" ];
+                echo "Wait, where is the directory to classify ???"
+                read -p "Enter the name of the folder to clissify: " OPTARG
+                while [[ ! -d "$OPTARG" ]];
                 do
+                    if [ "$OPTARG" == "q" ]; then
+                        printf '\n%.0s' {1..14} >> "$LOG_PATH"
+                        echo "\n####################" >> "$LOG_PATH"
+                        exit 1;
+                    fi
                     echo "This is not a folder..."
-                    read -p "Enter the folder to be filed: " OPTARG
+                    read -p "Enter the name of the folder to clissify (or q to exit): " OPTARG
                 done
                 cd "$OPTARG"
                 WORK_PATH="$(pwd)"
@@ -97,9 +108,12 @@ while getopts ":c:r:suthp" OPT "$@"; do
                 run_process
                 if [[ "$1" == "-r" ]]; then
                     run_script
+                    printf '\n%.0s' {1..1} >> "$LOG_PATH"
+                    echo "\n####################" >> "$LOG_PATH"
+                else
+                    printf '\n%.0s' {1..4} >> "$LOG_PATH"
+                    echo "\n####################" >> "$LOG_PATH"
                 fi
-                printf '\n%.0s' {1..4} >> "$LOG_PATH"
-                echo "\n####################" >> "$LOG_PATH"
             fi
             exit 1;;
 
