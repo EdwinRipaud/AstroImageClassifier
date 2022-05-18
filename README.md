@@ -1,5 +1,5 @@
 
-# AstroImageClissifier
+# AstroImageClassifier
 
 This utility was created by a curious beginner to help astrophotographers to
 classify their photos before processing.
@@ -72,22 +72,22 @@ too much space.
  
 ## Exemples:
 
-`sh AstroImageClissifier.sh -c Orion 42`: launch the classification on the images of
+`sh AstroImageClassifier.sh -c Orion 42`: launch the classification on the images of
 the 'Orion 42' folder
 
-`sh AstroImageClissifier.sh -s Orion 42`: execute a SiriL script based on image
+`sh AstroImageClassifier.sh -s Orion 42`: execute a SiriL script based on image
 type found during the last classification process. This will create a ***'process'***
 folder where all the intermediate processing files are stored.
 
-`sh AstroImageClissifier.sh -r Orion 42`: launch the classification process
+`sh AstroImageClassifier.sh -r Orion 42`: launch the classification process
 followed by the appropriate SiriL script. This will produce folders for
 classified images and a ***'process'*** folder for the script intermediate files.
 
-`sh AstroImageClissifier.sh -u`: reversing the last classification process, the
+`sh AstroImageClassifier.sh -u`: reversing the last classification process, the
 images will be placed back in the ***'RAW'*** folder as before the classification.
 
-`sh AstroImageClissifier.sh -p`: allows to check/change parameters such as:
+`sh AstroImageClassifier.sh -p`: allows to check/change parameters such as:
 folder names, classification characteristics, image orientation, etc.
 
-`sh AstroImageClissifier.sh -t`: allows you to access the details of hidden
+`sh AstroImageClassifier.sh -t`: allows you to access the details of hidden
 files, created during and for execution.

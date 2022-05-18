@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#  AstroImageClissifier_0.9.sh
+#  AstroImageClassifier_1.0.sh
 #  
 #
 #  Created by edwin ripaud on 19/03/2022.
@@ -16,7 +16,6 @@
 ##############
 # - Issues - #
 ##############
-# TODO: Renommer l'ensemble du projet, car faute de typo dans le nom : AstroImageClassifier
 
 
 #######################
@@ -36,26 +35,11 @@ if [ -e "$TEMP_PATH/AutoClassifier.log" ]; then
 else
     WORK_PATH="$ROOT_PATH"
 fi
-#WORK_PATH="/Volumes/Edwin SSD 1/5 - Astrophoto/AstroImageClissifier/Test"
 
 LOG_PATH="$TEMP_PATH/AutoClassifier.log"
 TODAY="$(date +%s)"
 
 check_dependencies
-
-            
-#echo "Wait, where is the directory to classify???"
-#read -p "Enter the folder to be filed: " OPTARG
-#while [ ! -d "$OPTARG" ];
-#do
-#    echo "($OPTARG) is not a folder..."
-#    if [ "$OPTARG" == "q" ]; then
-#        exit 1;
-#    fi
-#    read -p "Enter the folder to be filed: " OPTARG
-#done
-#
-#exit 1;
 
 # output the basis log informations
 echo "Execution date: $(date)" >> "$LOG_PATH"

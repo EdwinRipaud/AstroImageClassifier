@@ -63,28 +63,28 @@ Your folder architecture tree need to be like this:
     -h : show this help page.
  
 \033[1m\033[4mExemples:\033[m
-    sh AstroImageClissifier.sh -c Orion 42
+    sh AstroImageClassifier.sh -c Orion 42
 	\033[1m-->\033[m launch the classification on the images of the \033[1m\033[3m'Orion 42'\033[m folder.
  
-    sh AstroImageClissifier.sh -s Orion 42
+    sh AstroImageClassifier.sh -s Orion 42
 	\033[1m-->\033[m execute a SiriL script based on image type found during the last
 	classification process. This will create a \033[1m\033[3m'process'\033[m folder where all
 	the intermediate processing files are stored.
  
-    sh AstroImageClissifier.sh -r
+    sh AstroImageClassifier.sh -r
 	\033[1m-->\033[m launch the classification process followed by the appropriate SiriL
 	script. This will produce folders for classified images and a \033[1m\033[3m'process'\033[m
 	folder for the script intermediate files.
  
-    sh AstroImageClissifier.sh -u
+    sh AstroImageClassifier.sh -u
 	\033[1m-->\033[m reversing the last classification process, the images will be
 	placed back in the \033[1m\033[3m'RAW'\033[m folder as before the classification.
  
-    sh AstroImageClissifier.sh -p
+    sh AstroImageClassifier.sh -p
 	\033[1m-->\033[m allows to check/change parameters such as: folder names,
 	classification characteristics, image orientation, etc.
  
-    sh AstroImageClissifier.sh -t
+    sh AstroImageClassifier.sh -t
 	\033[1m-->\033[m allows you to access the details of hidden files, created during
 	and for execution.
  
